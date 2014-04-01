@@ -11,3 +11,4 @@ out.css
 build
 dist
 *.egg-info
+maryjane/tests/out.js
