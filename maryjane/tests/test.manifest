@@ -1,0 +1,6 @@
+
+test:
+  output: out.js
+  sources:
+    - watch_dir/a.js
+    - watch_dir/b.js
