@@ -1,0 +1,13 @@
+*.class
+*.pyc
+*.pyo
+.svn
+_svn
+.pydevproject
+.project
+.settings
+.settings/*
+out.css
+build
+dist
+*.egg-info
