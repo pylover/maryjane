@@ -24,7 +24,7 @@ def get_source_dirs(sources):
     return sorted(distinct(source_dirs))
 
 def split_paths(p):
-    if isinstance(p,basestring):
+    if isinstance(p, basestring):
         res = p.split(',')
     else:
         res = p
@@ -37,25 +37,3 @@ def check_overlap(arr1,arr2, checker):
             if res:
                 return res
     return False
-
-"""
-def splitlines(text):
-    return [i.strip() for i in text.splitlines() if i.strip()]
-
-
-
-
-def get_source_files(sources,extension='.sass'):
-    source_files = []
-    for s in sources:
-        p = os.path.abspath(s)
-        if os.path.isfile(p):
-            source_files.append(p)
-        elif os.path.isdir(p):
-            for _f in glob.iglob(os.path.join(p,'*%s' % extension)):
-                source_files.append(os.path.abspath(_f))
-    return sorted(distinct(source_files))
-
-
-
-"""
