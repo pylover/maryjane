@@ -13,8 +13,14 @@ class Manifest(ConfigManager):
         manifest_dir = os.path.dirname(manifest_file)
         for key in self.get_task_names():
             self[key].sources = [i if i.startswith('/') else os.path.abspath(os.path.join(manifest_dir, i)) for i in self[key].sources]
-            if not self[key].output.startswith('/'): 
+
+            if isinstance(self[key].output, basestring) and not self[key].output.startswith('/'):
                 self[key].output = os.path.abspath(os.path.join(manifest_dir, self[key].output))
+            else:
+                for out_type, filename in self[key].output.iteritems():
+                    if not filename.startswith('/'):
+                        self[key].output[out_type] = os.path.abspath(os.path.join(manifest_dir, filename))
+
     
     def get_task_names(self):
         for k in self.keys():

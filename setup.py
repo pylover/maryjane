@@ -28,7 +28,8 @@ setup(
     long_description=long_description,
     license='MIT',
     install_requires=['pymlconf>=0.3.9',
-                      'watchdog>=0.6.0'],
+                      'watchdog>=0.6.0',
+                      'rjsmin'],
     packages=['maryjane'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

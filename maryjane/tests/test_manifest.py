@@ -18,8 +18,9 @@ class TestManifest(unittest.TestCase):
         m = Manifest(self.manifest_file)
         
         watches = list(m.get_task_names())
-        self.assertEqual(len(watches), 1)
+        self.assertEqual(len(watches), 2)
         self.assertEqual(watches[0], 'test')
+        self.assertEqual(watches[1], 'minify_test')
         
         
         self.assert_(m.test.output.endswith('out.js'))

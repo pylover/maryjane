@@ -18,7 +18,7 @@ class TestBuilder(unittest.TestCase):
         m = Manifest(self.manifest_file)
         
         taskes = list(m.get_task_names())
-        self.assertEqual(len(taskes), 1)
+        self.assertEqual(len(taskes), 2)
         self.assertEqual(taskes[0], 'test')
         
         builder = Builder(m['test'])

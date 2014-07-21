@@ -4,3 +4,12 @@ test:
   sources:
     - watch_dir/a.js
     - watch_dir/b.js
+
+
+minify_test:
+  output:
+    normal: minify_test.js
+    minified: minify_test.min.js
+  sources:
+    - watch_dir/a.js
+    - watch_dir/b.js
