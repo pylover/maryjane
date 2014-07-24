@@ -1,4 +1,0 @@
-
-// something 
-
-alert('something');
