@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Created on:    Nov 1, 2013
 @author:        vahid
-'''
+"""
 
 from setuptools import setup
 import os.path
@@ -28,8 +28,7 @@ setup(
     long_description=long_description,
     license='MIT',
     install_requires=['pymlconf>=0.3.9',
-                      'watchdog>=0.6.0',
-                      'rjsmin'],
+                      'watchdog>=0.6.0'],
     packages=['maryjane'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
