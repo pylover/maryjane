@@ -2,7 +2,7 @@
 from maryjane.tags import BaseTag
 from maryjane.helpers import split_paths, has_file_overlap
 from watchdog.events import FileSystemEventHandler
-import os.path
+import traceback
 __author__ = 'vahid'
 
 
@@ -23,7 +23,10 @@ class TaskEventHandler(FileSystemEventHandler):
         super(FileSystemEventHandler, self).__init__()
 
     def on_any_event(self, event):
-        self.task.execute_if_needed(event)
+        try:
+            self.task.execute_if_needed(event)
+        except:
+            traceback.print_exc()
 
 class ObservableTaskTag(TaskTag):
 

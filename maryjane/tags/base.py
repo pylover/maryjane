@@ -52,5 +52,9 @@ class LazyTag(object):
 
 
 class LazyScalarTag(ScalarTag, LazyTag):
-    pass
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def lazy_value(self):
+        pass
 

@@ -2,11 +2,11 @@
 import yaml
 import time
 import os.path
+import traceback
 from watchdog.observers import Observer
 from maryjane.tags import TaskTag, SubprocessActionTag, TemplateTag, ObservableTaskTag, EvaluateTag, OptionsTag
 from maryjane.helpers import get_source_dirs, has_file_overlap, split_paths
 from watchdog.events import FileSystemEventHandler
-
 __author__ = 'vahid'
 
 
@@ -23,9 +23,24 @@ class ManifestFileEventHandler(FileSystemEventHandler):
             paths += split_paths(event.dest_path)
 
         if has_file_overlap(paths, self.manifest.filename):
-            self.manifest.reload_file()
-            self.manifest.execute()
+            try:
+                self.manifest.reboot()
+            except:
+                traceback.print_exc()
 
+
+class ManifestObserver(Observer):
+
+    def __init__(self, manifest):
+        self.manifest = manifest
+        Observer.__init__(self)
+        self.schedule(ManifestFileEventHandler(self.manifest),
+                      get_source_dirs(self.manifest.filename)[0])
+
+    def run(self):
+        print "Starting Manifest Watcher"
+        self.manifest.watch()
+        super(ManifestObserver, self).run()
 
 class Manifest(object):
 
@@ -36,7 +51,15 @@ class Manifest(object):
         self.tasks = {}
         self.watching_tasks = {}
         self._context = {}
+        self.observer = None
+        self.is_watching = False
         self.reload_file()
+
+    def reboot(self):
+        self.unwatch()
+        self.reload_file()
+        self.execute()
+        self.watch()
 
     def reload_file(self):
         manifest_dir = os.path.dirname(self.filename)
@@ -49,6 +72,7 @@ class Manifest(object):
         if 'context' in config and isinstance(config['context'], OptionsTag):
             self._context.update(config['context'].to_dict())
             self._context.update(self.tasks)
+
 
     def __getattr__(self, name):
         if name in self.tasks:
@@ -75,31 +99,34 @@ class Manifest(object):
         yaml.add_constructor('!template', specialize(TemplateTag.from_yaml_node))
         yaml.add_constructor('!eval', specialize(EvaluateTag.from_yaml_node))
 
-    def watch(self, block=False):
-        observer = Observer()
 
-        # Add watch for manifest file
-        observer.schedule(ManifestFileEventHandler(self),
-                          get_source_dirs(self.filename)[0])
+    def unwatch(self):
+        if self.observer.is_alive():
+            self.observer.stop()
 
-
+    def watch(self):
+        self.observer = Observer()
         for task_name, task in self.watching_tasks.iteritems():
             for directory in get_source_dirs(task.watch):
-                observer.schedule(task.create_event_handler(), directory)
+                handler = task.create_event_handler()
+                self.observer.schedule(handler, directory)
+        print "Starting Task Watcher"
+        self.observer.start()
 
-        observer.start()
-        if block:
-            try:
-                while True:
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                observer.stop()
-            observer.join()
 
 if __name__ == '__main__':
     fn = 'tests/maryjane.yaml'
     m = Manifest(fn, working_dir='tests')
 
     m.execute()
-    m.watch(block=True)
+    #m.watch()
 
+    o = ManifestObserver(m)
+    o.start()
+    while True:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            o.stop()
+            o.join()
+            break

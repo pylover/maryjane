@@ -20,10 +20,19 @@ task1: !watch
   output: !template ${S}/a-b.txt
 
 task2: !watch
-  banner: Executing task2
+  banner: !template |
+    Executing task2:
+    Compressing
+    ${task1.output}
+    Into
+    ${task2.output}
   actions:
     - !subprocess
       shell: true
-      arguments: !template tar --absolute-names -cf ${S}/a-b.tar.gz ${task1.output}
+      arguments: !template tar --absolute-names -cf ${task2.output} ${task1.output}
+  output: !template ${S}/a-b.tar.gz
   watch:
     - !eval task1.output
+
+
+
