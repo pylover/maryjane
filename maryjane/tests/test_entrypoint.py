@@ -11,6 +11,7 @@ class EntrypointTester(unittest.TestCase):
 
     def setUp(self):
         self.this_dir = os.path.dirname(__file__)
+        self.manifest_file = os.path.join(self.this_dir, 'maryjane.yaml')
         self.out_files = [os.path.join(self.this_dir, 'stuff', f) for f in ('a-b.txt', 'a-b.tar.gz')]
         self.input_files = [os.path.join(self.this_dir, 'stuff', f) for f in ('a.txt', 'b.txt')]
 
@@ -21,7 +22,7 @@ class EntrypointTester(unittest.TestCase):
 
     def test_main(self):
         self.cleanup()
-        main('maryjane.yaml')
+        main(self.manifest_file)
 
         for f in self.out_files:
             self.assertTrue(os.path.exists(f))
@@ -40,7 +41,7 @@ class EntrypointTester(unittest.TestCase):
 
     def test_watch(self):
         self.cleanup()
-        main('maryjane.yaml', enable_watcher=True)
+        main(self.manifest_file, enable_watcher=True)
 
         for f in self.out_files:
             self.assertTrue(os.path.exists(f))
