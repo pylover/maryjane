@@ -30,7 +30,7 @@ def get_source_files(sources, extensions='.sass,.scss'):
 
 def get_source_dirs(sources):
     source_dirs = []
-    for s in sources:
+    for s in split_paths(sources):
         if os.path.isdir(s):
             source_dirs.append(s)
         else:
@@ -41,10 +41,10 @@ def get_source_dirs(sources):
     return sorted(distinct(source_dirs))
 
 def has_file_overlap(paths1, paths2):
-    for p1 in paths1:
+    for p1 in split_paths(paths1):
         if not os.path.isfile(p1):
             continue
-        for p2 in paths2:
+        for p2 in split_paths(paths2):
             if not os.path.isfile(p2):
                 continue
             if os.path.samefile(p1, p2):

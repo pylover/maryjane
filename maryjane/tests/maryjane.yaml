@@ -27,5 +27,3 @@ task2: !watch
       arguments: !template tar --absolute-names -cf ${S}/a-b.tar.gz ${task1.output}
   watch:
     - !eval task1.output
-
-
