@@ -3,7 +3,7 @@ __author__ = 'vahid'
 import unittest
 import os
 import time
-from maryjane import Manifest, main
+from maryjane import main
 import hashlib
 from datetime import datetime
 
@@ -40,12 +40,12 @@ class EntrypointTester(unittest.TestCase):
 
     def test_watch(self):
         self.cleanup()
-        main('maryjane.yaml', watch=True)
+        main('maryjane.yaml', enable_watcher=True)
 
         for f in self.out_files:
             self.assertTrue(os.path.exists(f))
 
-        file_checksums = [self.md5(f) for f in self.out_files]
+        files_checksum = [self.md5(f) for f in self.out_files]
 
         # Trying to change an input file
         with open(self.input_files[0], 'w') as input_file:
@@ -53,10 +53,10 @@ class EntrypointTester(unittest.TestCase):
 
         time.sleep(3)
 
-        new_file_checksums = [self.md5(f) for f in self.out_files]
+        new_files_checksum = [self.md5(f) for f in self.out_files]
 
         for i in range(len(self.out_files)):
-            self.assertNotEqual(file_checksums[i], new_file_checksums[i])
+            self.assertNotEqual(files_checksum[i], new_files_checksum[i])
 
 
 

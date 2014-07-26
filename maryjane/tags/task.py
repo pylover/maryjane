@@ -23,6 +23,7 @@ class TaskEventHandler(FileSystemEventHandler):
         super(FileSystemEventHandler, self).__init__()
 
     def on_any_event(self, event):
+        # noinspection PyBroadException
         try:
             self.task.execute_if_needed(event)
         except:

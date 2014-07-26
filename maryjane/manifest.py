@@ -23,6 +23,7 @@ class ManifestFileEventHandler(FileSystemEventHandler):
             paths += split_paths(event.dest_path)
 
         if has_file_overlap(paths, self.manifest.filename):
+            # noinspection PyBroadException
             try:
                 self.manifest.reboot()
             except:

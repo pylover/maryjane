@@ -6,6 +6,7 @@ __author__ = 'vahid'
 
 def split_paths(p):
     if isinstance(p, basestring):
+        # noinspection PyUnresolvedReferences
         res = p.split(',')
     else:
         res = p
