@@ -8,5 +8,5 @@ class EvaluateTag(LazyScalarTag):
         super(EvaluateTag, self).__init__(raw_value ,manifest)
 
     def lazy_value(self):
-        return eval(self._raw_value, self.manifest.context)
+        return eval(self.value, self.manifest.context)
 

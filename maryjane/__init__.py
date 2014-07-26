@@ -4,7 +4,7 @@ from .manifest import Manifest
 __author__ = 'vahid'
 
 
-def main(manifest_filenames, enable_watch=False):
+def main(manifest_filenames, enable_watch=False, block=False):
 
     if isinstance(manifest_filenames, basestring):
         manifest_filenames = manifest_filenames.split()
@@ -16,5 +16,5 @@ def main(manifest_filenames, enable_watch=False):
     m.execute()
 
     if enable_watch:
-        m.watch()
+        m.watch(block=block)
 

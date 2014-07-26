@@ -1,5 +1,10 @@
 
-task1: !task
+task1: !watch
+  banner: !template |
+    Executing task1
+    source files:
+    ${'\n'.join(task1.inputs)}
+
   actions:
     - !subprocess
       shell: true
@@ -10,7 +15,8 @@ task1: !task
     - !template ${working_dir}/stuff/b.txt
   output: !template ${working_dir}/stuff/a-b.txt
 
-task2: !task
+task2: !watch
+  banner: Executing task2
   actions:
     - !subprocess
       shell: true
