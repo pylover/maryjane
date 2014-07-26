@@ -14,7 +14,9 @@ class BaseTag(object):
     def __getattribute__(self, item):
         v = object.__getattribute__(self, item)
         if isinstance(v, LazyTag):
-            return v.get_value()
+            return v.lazy_value()
+        elif isinstance(v, list):
+            return [i if not isinstance(i, LazyTag) else i.lazy_value() for i in v]
         return v
 
     @classmethod
@@ -22,10 +24,30 @@ class BaseTag(object):
         kw = loader.construct_mapping(node)
         return cls(manifest, **kw)
 
+class ScalarTag(BaseTag):
 
-class LazyTag(BaseTag):
+    def __init__(self, value, manifest):
+        self._value = value
+        BaseTag.__init__(self, manifest)
+
+    @property
+    def value(self):
+        return self._value
+
+    @classmethod
+    def from_yaml_node(cls, manifest, loader, node):
+        value = loader.construct_scalar(node)
+        return cls(value, manifest)
+
+
+class LazyTag(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def get_value(self, context):
+    def lazy_value(self):
         pass
+
+
+class LazyScalarTag(ScalarTag, LazyTag):
+    pass
+

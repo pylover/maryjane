@@ -1,18 +1,21 @@
+
 task1: !task
   actions:
     - !subprocess
       shell: true
       arguments: !template cat ${' '.join(task1.inputs)} > ${task1.output}
+  watch: !eval task1.inputs
   inputs:
-    - stuff/a.txt
-    - stuff/b.txt
-  output: stuff/a-b.txt
-
+    - !template ${working_dir}/stuff/a.txt
+    - !template ${working_dir}/stuff/b.txt
+  output: !template ${working_dir}/stuff/a-b.txt
 
 task2: !task
   actions:
     - !subprocess
       shell: true
-      arguments: !template tar -cf stuff/a-b.tar-gz ${task1.output}
+      arguments: !template tar -cf ${working_dir}/stuff/a-b.tar.gz ${task1.output}
+  watch:
+    - !eval task1.output
 
 

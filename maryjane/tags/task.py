@@ -11,3 +11,7 @@ class TaskTag(BaseTag):
 
     def __repr__(self):
         return '<TaskTag>'
+
+class ObservableTaskTag(TaskTag):
+    def __repr__(self):
+        return '<ObservableTaskTag>'
