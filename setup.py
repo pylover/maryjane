@@ -27,7 +27,8 @@ setup(
     description='Python automatic file merge tool',
     long_description=long_description,
     license='MIT',
-    install_requires=['pymlconf>=0.3.9',
+    install_requires=['mako',
+                      'pyyaml',
                       'watchdog>=0.6.0'],
     packages=['maryjane'],
     classifiers=[
