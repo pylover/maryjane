@@ -32,13 +32,23 @@ class TaskEventHandler(FileSystemEventHandler):
 class ObservableTaskTag(TaskTag):
 
     def execute_if_needed(self, event):
+        update_needed = False
         paths = []
         if hasattr(event, 'src_path'):
             paths += split_paths(event.src_path)
         if hasattr(event, 'dest_path'):
             paths += split_paths(event.dest_path)
 
-        if has_file_overlap(paths, self.watch):
+        if self.watcher.predicate:
+            for p in paths:
+                if self.watcher.predicate(p):
+                    update_needed = True
+                    break
+        else:
+            update_needed = True
+
+
+        if update_needed:
             self.execute_actions()
 
     def create_event_handler(self):

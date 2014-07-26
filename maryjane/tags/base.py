@@ -3,7 +3,6 @@ from abc import ABCMeta, abstractmethod
 
 __author__ = 'vahid'
 
-
 class BaseTag(object):
     __metaclass__ = ABCMeta
 

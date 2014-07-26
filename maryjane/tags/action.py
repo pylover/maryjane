@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from maryjane.tags import BaseTag
+from maryjane.tags import BaseTag, OptionsTag
 import subprocess as sb
+
 __author__ = 'vahid'
 
 class ActionTag(BaseTag):
@@ -22,10 +23,15 @@ class SubprocessActionTag(ActionTag):
         if 'arguments' in kw:
             del kw['arguments']
 
-        return cls(manifest, kw, **dict(arguments=arguments))
+        popen_args = OptionsTag(manifest, **kw)
+
+        return cls(manifest, popen_args, **dict(arguments=arguments))
 
     def execute(self):
-        p = sb.Popen(self.arguments, **self.popen_args)
+        args = self.popen_args.to_dict()
+        if 'manifest' in args:
+            del args['manifest']
+        p = sb.Popen(self.arguments, **args)
         p.wait()
 
     def __repr__(self):

@@ -13,10 +13,17 @@ task1: !watch
     - !subprocess
       shell: true
       arguments: !template cat ${' '.join(task1.inputs)} > ${task1.output}
-  watch: !eval task1.inputs
+
+  watcher: !watcher
+    recursive: True
+    predicate: !eval "lambda fn: not has_file_overlap(fn, [task1.output, task2.output])"
+    sources:
+      - !eval S
+
   inputs:
     - !template ${S}/a.txt
     - !template ${S}/b.txt
+    - !template ${S}/doc/c.txt
   output: !template ${S}/a-b.txt
 
 task2: !watch
@@ -31,8 +38,10 @@ task2: !watch
       shell: true
       arguments: !template tar --absolute-names -cf ${task2.output} ${task1.output}
   output: !template ${S}/a-b.tar.gz
-  watch:
-    - !eval task1.output
+  watcher: !watcher
+    predicate: !eval "lambda fn: has_file_overlap(fn, task1.output)"
+    sources:
+      - !eval task1.output
 
 
 

@@ -4,7 +4,7 @@ import time
 import os.path
 import traceback
 from watchdog.observers import Observer
-from maryjane.tags import TaskTag, SubprocessActionTag, TemplateTag, ObservableTaskTag, EvaluateTag, OptionsTag
+from maryjane.tags import TaskTag, SubprocessActionTag, TemplateTag, ObservableTaskTag, EvaluateTag, OptionsTag, WatcherTag
 from maryjane.helpers import get_source_dirs, has_file_overlap, split_paths
 from watchdog.events import FileSystemEventHandler
 __author__ = 'vahid'
@@ -29,6 +29,11 @@ class ManifestFileEventHandler(FileSystemEventHandler):
             except:
                 traceback.print_exc()
 
+_context_builtins = {
+    'has_file_overlap': has_file_overlap,
+    'split_paths': split_paths,
+    'get_source_dirs': get_source_dirs
+}
 
 class ManifestObserver(Observer):
 
@@ -66,6 +71,7 @@ class Manifest(object):
         manifest_dir = os.path.dirname(self.filename)
         self._context = dict(manifest_dir= '.' if not manifest_dir else manifest_dir,
                              working_dir=self.working_dir)
+        self._context.update(_context_builtins)
         with open(self.filename) as manifest_file:
             config = yaml.load(manifest_file)
         self.tasks = {k: v for k, v in config.iteritems() if isinstance(v, TaskTag)}
@@ -99,6 +105,7 @@ class Manifest(object):
         yaml.add_constructor('!watch', specialize(ObservableTaskTag.from_yaml_node))
         yaml.add_constructor('!template', specialize(TemplateTag.from_yaml_node))
         yaml.add_constructor('!eval', specialize(EvaluateTag.from_yaml_node))
+        yaml.add_constructor('!watcher', specialize(WatcherTag.from_yaml_node))
 
 
     def unwatch(self):
@@ -108,9 +115,9 @@ class Manifest(object):
     def watch(self):
         self.observer = Observer()
         for task_name, task in self.watching_tasks.iteritems():
-            for directory in get_source_dirs(task.watch):
-                handler = task.create_event_handler()
-                self.observer.schedule(handler, directory)
+            handler = task.create_event_handler()
+            for directory in get_source_dirs(task.watcher.sources):
+                self.observer.schedule(handler, directory, recursive=task.watcher.recursive)
         print "Starting Task Watcher"
         self.observer.start()
 
