@@ -118,10 +118,8 @@ class Manifest(object):
 if __name__ == '__main__':
     fn = 'tests/maryjane.yaml'
     m = Manifest(fn, working_dir='tests')
-
     m.execute()
     #m.watch()
-
     o = ManifestObserver(m)
     o.start()
     while True:

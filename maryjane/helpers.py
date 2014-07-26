@@ -4,6 +4,7 @@ import glob
 
 __author__ = 'vahid'
 
+
 def split_paths(p):
     if isinstance(p, basestring):
         # noinspection PyUnresolvedReferences
@@ -12,10 +13,12 @@ def split_paths(p):
         res = p
     return [os.path.abspath(i.strip()) for i in res]
 
+
 def distinct(l):
     if not l or not len(l):
         return []
     return list(set(l))
+
 
 def get_source_files(sources, extensions='.sass,.scss'):
     source_files = []
@@ -29,6 +32,7 @@ def get_source_files(sources, extensions='.sass,.scss'):
                     source_files.append(os.path.abspath(_f))
     return sorted(distinct(source_files))
 
+
 def get_source_dirs(sources):
     source_dirs = []
     for s in split_paths(sources):
@@ -40,6 +44,7 @@ def get_source_dirs(sources):
                 source_dirs.append(p)
 
     return sorted(distinct(source_dirs))
+
 
 def has_file_overlap(paths1, paths2):
     for p1 in split_paths(paths1):
