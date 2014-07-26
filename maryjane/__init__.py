@@ -2,17 +2,12 @@
 
 from .manifest import Manifest
 __author__ = 'vahid'
+__version__ = '2.1'
 
+def main(manifest_filename, enable_watch=False, block=False, working_directory='.'):
 
-def main(manifest_filenames, enable_watch=False, block=False):
-
-    if isinstance(manifest_filenames, basestring):
-        manifest_filenames = manifest_filenames.split()
-
-    m = Manifest()
-    for manifest_filename in manifest_filenames:
-        with open(manifest_filename) as manifest_file:
-            m.load(manifest_file)
+    m = Manifest(manifest_filename,
+                 working_dir=working_directory)
     m.execute()
 
     if enable_watch:

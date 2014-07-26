@@ -23,14 +23,19 @@ setup(
     version=package_version,
     author='Vahid Mardani',
     author_email='vahid.mardani@gmail.com',
-    url='http://github.com/pylover/maryjane',
-    description='Python automatic file merge tool',
+    url='http://github.com/pylover/MaryJane',
+    description='Python file watcher and task manager',
     long_description=long_description,
     license='MIT',
     install_requires=['mako',
                       'pyyaml',
                       'watchdog>=0.6.0'],
     packages=['maryjane'],
+    entry_points={
+        'console_scripts': [
+            'maryjane = maryjane.cli:cli_main'
+        ]
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',

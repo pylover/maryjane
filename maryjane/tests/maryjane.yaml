@@ -1,4 +1,8 @@
 
+context: !options
+  working_dir: !eval manifest_dir
+  S: !template ${manifest_dir}/stuff
+
 task1: !watch
   banner: !template |
     Executing task1
@@ -11,16 +15,16 @@ task1: !watch
       arguments: !template cat ${' '.join(task1.inputs)} > ${task1.output}
   watch: !eval task1.inputs
   inputs:
-    - !template ${working_dir}/stuff/a.txt
-    - !template ${working_dir}/stuff/b.txt
-  output: !template ${working_dir}/stuff/a-b.txt
+    - !template ${S}/a.txt
+    - !template ${S}/b.txt
+  output: !template ${S}/a-b.txt
 
 task2: !watch
   banner: Executing task2
   actions:
     - !subprocess
       shell: true
-      arguments: !template tar -cf ${working_dir}/stuff/a-b.tar.gz ${task1.output}
+      arguments: !template tar -cf ${S}/a-b.tar.gz ${task1.output}
   watch:
     - !eval task1.output
 

@@ -5,5 +5,6 @@ from .task import TaskTag, ObservableTaskTag
 from .template import TemplateTag
 from .action import ActionTag, SubprocessActionTag
 from .evaluate import EvaluateTag
+from .options import OptionsTag
 
 __author__ = 'vahid'

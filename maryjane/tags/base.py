@@ -19,6 +19,9 @@ class BaseTag(object):
             return [i if not isinstance(i, LazyTag) else i.lazy_value() for i in v]
         return v
 
+    def to_dict(self):
+        return {k: getattr(self, k) for k in self.__dict__ if not k.startswith('_')}
+
     @classmethod
     def from_yaml_node(cls, manifest, loader, node):
         kw = loader.construct_mapping(node)
