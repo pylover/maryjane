@@ -13,7 +13,7 @@ parser.add_argument('-w','--watch', dest='watch', action='store_true', help='Wat
 def cli_main():
     args = parser.parse_args()
     main(args.manifest,
-         enable_watch=args.watch,
+         watch=args.watch,
          block=args.watch,
          working_directory=args.working_dir)
     sys.exit(0)

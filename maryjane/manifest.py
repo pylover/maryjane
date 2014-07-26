@@ -13,7 +13,9 @@ class Manifest(object):
     def __init__(self, filename, working_dir='.'):
         self.filename = filename
         self.configure_yaml()
-        self._context = dict(manifest_dir=os.path.dirname(self.filename),
+        manifest_dir = os.path.dirname(self.filename)
+
+        self._context = dict(manifest_dir= '.' if not manifest_dir else manifest_dir,
                              working_dir=working_dir)
         with open(filename) as manifest_file:
             config = yaml.load(manifest_file)

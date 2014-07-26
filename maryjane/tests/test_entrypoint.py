@@ -40,7 +40,7 @@ class EntrypointTester(unittest.TestCase):
 
     def test_watch(self):
         self.cleanup()
-        main('maryjane.yaml', enable_watch=True)
+        main('maryjane.yaml', watch=True)
 
         for f in self.out_files:
             self.assertTrue(os.path.exists(f))
@@ -51,7 +51,7 @@ class EntrypointTester(unittest.TestCase):
         with open(self.input_files[0], 'w') as input_file:
             input_file.write("This file recently changed at: %s" % datetime.now().strftime('%Y-%m-%d %H:%M'))
 
-        time.sleep(2)
+        time.sleep(3)
 
         new_file_checksums = [self.md5(f) for f in self.out_files]
 
