@@ -4,7 +4,8 @@ import time
 import os.path
 import traceback
 from watchdog.observers import Observer
-from maryjane.tags import TaskTag, SubprocessActionTag, TemplateTag, ObservableTaskTag, EvaluateTag, OptionsTag, WatcherTag
+from maryjane.tags import TaskTag, SubprocessActionTag, TemplateTag, ObservableTaskTag,\
+    EvaluateTag, OptionsTag, WatcherTag, ImportTag
 from maryjane.helpers import get_source_dirs, has_file_overlap, split_paths
 from watchdog.events import FileSystemEventHandler
 __author__ = 'vahid'
@@ -106,6 +107,8 @@ class Manifest(object):
         yaml.add_constructor('!template', specialize(TemplateTag.from_yaml_node))
         yaml.add_constructor('!eval', specialize(EvaluateTag.from_yaml_node))
         yaml.add_constructor('!watcher', specialize(WatcherTag.from_yaml_node))
+        yaml.add_constructor('!import', specialize(ImportTag.from_yaml_node))
+
 
 
     def unwatch(self):

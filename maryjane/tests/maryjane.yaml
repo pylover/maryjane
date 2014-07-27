@@ -2,10 +2,12 @@
 context: !options
   working_dir: !eval manifest_dir
   S: !template ${manifest_dir}/stuff
+  path: !import os.path
+  time: !import datetime from datetime
 
 task1: !watch
   banner: !template |
-    Executing task1
+    [${time.now()}] Executing task1
     source files:
     ${'\n'.join(task1.inputs)}
 
