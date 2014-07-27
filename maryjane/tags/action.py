@@ -6,6 +6,10 @@ __author__ = 'vahid'
 
 class ActionTag(BaseTag):
 
+    def execute(self):
+        if hasattr(self, 'banner'):
+            print self.banner
+
     def __repr__(self):
         return '<ActionTag>'
 
@@ -19,15 +23,19 @@ class SubprocessActionTag(ActionTag):
     def from_yaml_node(cls, manifest, loader, node):
         kw = loader.construct_mapping(node)
 
-        arguments = kw.get('arguments')
-        if 'arguments' in kw:
-            del kw['arguments']
+        class_kwargs = {}
+        for arg_name in ('arguments', 'banner'):
+            arg_value = kw.get(arg_name)
+            if arg_value:
+                class_kwargs[arg_name] = arg_value
+                del kw[arg_name]
 
         popen_args = OptionsTag(manifest, **kw)
 
-        return cls(manifest, popen_args, **dict(arguments=arguments))
+        return cls(manifest, popen_args, **class_kwargs)
 
     def execute(self):
+        super(SubprocessActionTag, self).execute()
         args = self.popen_args.to_dict()
         if 'manifest' in args:
             del args['manifest']

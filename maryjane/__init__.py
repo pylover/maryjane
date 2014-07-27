@@ -3,7 +3,7 @@
 from .manifest import Manifest, ManifestObserver
 import time
 __author__ = 'vahid'
-__version__ = '2.7'
+__version__ = '2.8'
 
 
 def watch(manifest_to_watch, block=False):
@@ -24,4 +24,5 @@ def main(manifest_filename, enable_watcher=False, block=False, working_directory
     m.execute()
     if enable_watcher:
         watch(m, block=block)
+    return m
 
