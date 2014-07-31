@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from maryjane.tags import BaseTag
-from maryjane.helpers import split_paths, has_file_overlap
+from maryjane.tags.base import DictionaryTag
+from maryjane.helpers import split_paths
 from watchdog.events import FileSystemEventHandler
 import traceback
 __author__ = 'vahid'
 
 
-class TaskTag(BaseTag):
+class TaskTag(DictionaryTag):
 
     def execute_actions(self):
         if hasattr(self, 'banner'):

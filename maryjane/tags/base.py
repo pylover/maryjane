@@ -6,9 +6,8 @@ __author__ = 'vahid'
 class BaseTag(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, manifest, **attributes):
+    def __init__(self, manifest, **kw):
         self.manifest = manifest
-        self.__dict__.update(attributes)
 
     def __getattribute__(self, item):
         v = object.__getattribute__(self, item)
@@ -18,6 +17,12 @@ class BaseTag(object):
             return [i if not isinstance(i, LazyTag) else i.lazy_value() for i in v]
         return v
 
+class DictionaryTag(BaseTag):
+
+    def __init__(self, manifest, **attributes):
+        super(DictionaryTag, self).__init__(manifest)
+        self.__dict__.update(attributes)
+
     def to_dict(self):
         return {k: getattr(self, k) for k in self.__dict__ if not k.startswith('_')}
 
@@ -25,6 +30,10 @@ class BaseTag(object):
     def from_yaml_node(cls, manifest, loader, node):
         kw = loader.construct_mapping(node)
         return cls(manifest, **kw)
+
+    def __repr__(self):
+        return '<DictionaryTag>'
+
 
 class ScalarTag(BaseTag):
 

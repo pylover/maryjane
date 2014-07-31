@@ -5,7 +5,7 @@ import os.path
 import traceback
 from watchdog.observers import Observer
 from maryjane.tags import TaskTag, SubprocessActionTag, TemplateTag, ObservableTaskTag,\
-    EvaluateTag, OptionsTag, WatcherTag, ImportTag, BannerActionTag
+    EvaluateTag, OptionsTag, WatcherTag, ImportTag, BannerActionTag, ContextTag
 from maryjane.helpers import get_source_dirs, has_file_overlap, split_paths, get_filename
 from watchdog.events import FileSystemEventHandler
 __author__ = 'vahid'
@@ -78,9 +78,9 @@ class Manifest(object):
             config = yaml.load(manifest_file)
         self.tasks = {k: v for k, v in config.iteritems() if isinstance(v, TaskTag)}
         self.watching_tasks = {k: v for k, v in config.iteritems() if isinstance(v, ObservableTaskTag)}
-        if 'context' in config and isinstance(config['context'], OptionsTag):
-            self._context.update(config['context'].to_dict())
-            self._context.update(self.tasks)
+        # if 'context' in config and isinstance(config['context'], OptionsTag):
+        #     self._context.update(config['context'].to_dict())
+        self._context.update(self.tasks)
 
 
     def __getattr__(self, name):
@@ -110,6 +110,7 @@ class Manifest(object):
         yaml.add_constructor('!watcher', specialize(WatcherTag.from_yaml_node))
         yaml.add_constructor('!import', specialize(ImportTag.from_yaml_node))
         yaml.add_constructor('!banner', specialize(BannerActionTag.from_yaml_node))
+        yaml.add_constructor('!context', specialize(ContextTag.from_yaml_node))
 
 
 

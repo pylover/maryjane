@@ -1,9 +1,12 @@
 
-context: !options
+baseContext: !context
   working_dir: !eval manifest_dir
-  S: !template ${manifest_dir}/stuff
+  stuff: !template ${'stu'}ff
   path: !import os.path
   time: !import datetime from datetime
+
+context: !context
+  S: !template ${manifest_dir}/${stuff}
 
 task1: !watch
   banner: !template |
@@ -47,6 +50,7 @@ task2: !watch
     predicate: !eval "lambda fn: has_file_overlap(fn, task1.output)"
     sources:
       - !eval task1.output
+
 
 
 

@@ -51,8 +51,13 @@ class EntrypointTester(unittest.TestCase):
         # Trying to change an input file
         with open(self.input_files[0], 'w') as input_file:
             input_file.write("This file recently changed at: %s" % datetime.now().strftime('%Y-%m-%d %H:%M'))
+            input_file.flush()
 
-        time.sleep(3)
+        with open(self.input_files[0], 'a') as input_file:
+            input_file.write("This file recently changed at: %s" % datetime.now().strftime('%Y-%m-%d %H:%M'))
+            input_file.flush()
+
+        time.sleep(5)
 
         new_files_checksum = [self.md5(f) for f in self.out_files]
 

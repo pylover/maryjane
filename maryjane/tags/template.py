@@ -8,7 +8,7 @@ class TemplateTag(LazyScalarTag, MakoTemplate):
 
     def __init__(self, template, manifest):
         LazyScalarTag.__init__(self, template, manifest)
-        MakoTemplate.__init__(self, self.value)
+        MakoTemplate.__init__(self, self.value, strict_undefined=True)
 
     def lazy_value(self):
         return self.render(**self.manifest.context)

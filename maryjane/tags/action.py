@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from maryjane.tags.base import BaseTag
+from maryjane.tags.base import DictionaryTag
 
 
 __author__ = 'vahid'
 
-class ActionTag(BaseTag):
+class ActionTag(DictionaryTag):
 
     def execute(self):
         if hasattr(self, 'banner'):
