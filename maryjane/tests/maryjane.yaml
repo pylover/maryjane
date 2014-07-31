@@ -16,6 +16,9 @@ task1: !watch
       shell: true
       arguments: !template cat ${' '.join(task1.inputs)} > ${task1.output}
 
+    - !banner
+      text: My Banner
+
   watcher: !watcher
     recursive: True
     predicate: !eval "lambda fn: not has_file_overlap(fn, [task1.output, task2.output])"
