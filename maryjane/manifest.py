@@ -6,7 +6,7 @@ import traceback
 from watchdog.observers import Observer
 from maryjane.tags import TaskTag, SubprocessActionTag, TemplateTag, ObservableTaskTag,\
     EvaluateTag, OptionsTag, WatcherTag, ImportTag, BannerActionTag
-from maryjane.helpers import get_source_dirs, has_file_overlap, split_paths
+from maryjane.helpers import get_source_dirs, has_file_overlap, split_paths, get_filename
 from watchdog.events import FileSystemEventHandler
 __author__ = 'vahid'
 
@@ -33,7 +33,8 @@ class ManifestFileEventHandler(FileSystemEventHandler):
 _context_builtins = {
     'has_file_overlap': has_file_overlap,
     'split_paths': split_paths,
-    'get_source_dirs': get_source_dirs
+    'get_source_dirs': get_source_dirs,
+    'get_filename': get_filename
 }
 
 class ManifestObserver(Observer):

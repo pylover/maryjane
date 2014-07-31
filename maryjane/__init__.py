@@ -3,7 +3,7 @@
 from .manifest import Manifest, ManifestObserver
 import time
 __author__ = 'vahid'
-__version__ = '2.9'
+__version__ = '2.10'
 
 
 def watch(manifest_to_watch, block=False):

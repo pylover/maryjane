@@ -56,3 +56,6 @@ def has_file_overlap(paths1, paths2):
             if os.path.samefile(p1, p2):
                 return True
     return False
+
+def get_filename(filepath):
+    return os.path.split(filepath)[1]
