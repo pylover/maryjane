@@ -2,8 +2,9 @@
 
 from .manifest import Manifest, ManifestObserver
 import time
+import traceback
 __author__ = 'vahid'
-__version__ = '2.11'
+__version__ = '2.12'
 
 
 def watch(manifest_to_watch, block=False):
@@ -21,7 +22,10 @@ def watch(manifest_to_watch, block=False):
 
 def main(manifest_filename, enable_watcher=False, block=False, working_directory='.'):
     m = Manifest(manifest_filename, working_dir=working_directory)
-    m.execute()
+    try:
+        m.execute()
+    except:
+        traceback.print_exc()
     if enable_watcher:
         watch(m, block=block)
     return m
