@@ -4,7 +4,7 @@ Created on:    Nov 1, 2013
 @author:        vahid
 """
 
-from setuptools import setup
+from setuptools import setup, find_packages
 import os.path
 import re
 
@@ -30,7 +30,7 @@ setup(
     install_requires=['mako',
                       'pyyaml',
                       'watchdog>=0.6.0'],
-    packages=['maryjane'],
+    packages=['maryjane', 'maryjane.tags'],
     entry_points={
         'console_scripts': [
             'maryjane = maryjane.cli:cli_main'
