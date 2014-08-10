@@ -12,9 +12,8 @@ import re
 with open(os.path.join(os.path.dirname(__file__), 'maryjane', '__init__.py')) as v_file:
     package_version = re.compile(r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
 
-long_description = \
-"""`MaryJane` is a Python automatic file merge tool.
-
+long_description = """
+`MaryJane` is a Python automatic file merge tool.
 Docs at http://github.com/pylover/maryjane.
 """
 
@@ -47,5 +46,5 @@ setup(
         'Topic :: Communications :: Email',
         'Topic :: Software Development :: Libraries',
         'Topic :: Utilities',
-        ],    
+        ],
     )
