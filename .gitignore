@@ -13,3 +13,4 @@ dist
 *.egg-info
 maryjane/tests/out.js
 maryjane/tests/minify_test*.js
+.idea

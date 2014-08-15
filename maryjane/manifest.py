@@ -78,8 +78,8 @@ class Manifest(object):
             config = yaml.load(manifest_file)
         self.tasks = {k: v for k, v in config.iteritems() if isinstance(v, TaskTag)}
         self.watching_tasks = {k: v for k, v in config.iteritems() if isinstance(v, ObservableTaskTag)}
-        # if 'context' in config and isinstance(config['context'], OptionsTag):
-        #     self._context.update(config['context'].to_dict())
+        # for context_key, context in {k: v for k, v in config.iteritems() if isinstance(v, ContextTag)}.iteritems():
+        #     self._context.update(context.to_dict())
         self._context.update(self.tasks)
 
 
