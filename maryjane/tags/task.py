@@ -7,6 +7,13 @@ __author__ = 'vahid'
 
 
 class TaskTag(DictionaryTag):
+    priority = 50
+
+    def __init__(self, manifest, **attributes):
+        if 'priority' in attributes:
+            attributes['priority'] = int(attributes['priority'])
+        super(TaskTag, self).__init__(manifest, **attributes)
+
 
     def execute_actions(self):
         if hasattr(self, 'banner'):

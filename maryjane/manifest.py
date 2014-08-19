@@ -3,6 +3,7 @@ import yaml
 import time
 import os.path
 import traceback
+from collections import OrderedDict
 from watchdog.observers import Observer
 from maryjane.tags import TaskTag, SubprocessActionTag, TemplateTag, ObservableTaskTag,\
     EvaluateTag, OptionsTag, WatcherTag, ImportTag, BannerActionTag, ContextTag
@@ -76,7 +77,10 @@ class Manifest(object):
         self._context.update(_context_builtins)
         with open(self.filename) as manifest_file:
             config = yaml.load(manifest_file)
-        self.tasks = {k: v for k, v in config.iteritems() if isinstance(v, TaskTag)}
+
+        self.tasks = OrderedDict(sorted([(k, v) for k, v in config.iteritems() if isinstance(v, TaskTag)],
+                                        key=lambda i: i[1].priority))
+
         self.watching_tasks = {k: v for k, v in config.iteritems() if isinstance(v, ObservableTaskTag)}
         # for context_key, context in {k: v for k, v in config.iteritems() if isinstance(v, ContextTag)}.iteritems():
         #     self._context.update(context.to_dict())

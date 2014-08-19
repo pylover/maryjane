@@ -9,6 +9,7 @@ context: !context
   S: !template ${manifest_dir}/${stuff}
 
 task1: !watch
+  priority: 30
   banner: !template |
     [${time.now()}] Executing task1
     source files:
