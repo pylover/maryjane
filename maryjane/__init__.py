@@ -5,7 +5,7 @@ import time
 import os
 import traceback
 __author__ = 'vahid'
-__version__ = '2.16'
+__version__ = '2.18'
 
 
 def watch(manifest_to_watch, block=False):
@@ -21,13 +21,15 @@ def watch(manifest_to_watch, block=False):
                 break
 
 
-def main(manifest_filename, enable_watcher=False, block=False, working_directory='.'):
+def main(manifest_filename, enable_watcher=False, block=False, working_directory='.', bootstrap=True):
     m = Manifest(manifest_filename, working_dir=os.path.abspath(working_directory))
-    try:
-        m.execute()
-    except:
-        traceback.print_stack()
-        traceback.print_exc()
+    if bootstrap:
+        try:
+            m.execute()
+        except:
+            traceback.print_stack()
+            traceback.print_exc()
+
     if enable_watcher:
         watch(m, block=block)
     return m
