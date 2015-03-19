@@ -21,7 +21,9 @@ class SubprocessActionTag(ActionTag):
             arg_value = kw.get(arg_name)
             if arg_value:
                 class_kwargs[arg_name] = arg_value
-            del kw[arg_name]
+
+            if arg_name in kw:
+                del kw[arg_name]
 
         popen_args = OptionsTag(manifest, **kw)
 
