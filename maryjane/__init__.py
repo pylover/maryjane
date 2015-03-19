@@ -5,7 +5,7 @@ import time
 import os
 import traceback
 __author__ = 'vahid'
-__version__ = '2.18'
+__version__ = '2.20.3'
 
 
 def watch(manifest_to_watch, block=False):

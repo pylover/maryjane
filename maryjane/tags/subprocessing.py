@@ -6,6 +6,7 @@ import subprocess as sb
 
 __author__ = 'vahid'
 class SubprocessActionTag(ActionTag):
+    echo = False
 
     def __init__(self, manifest, popen_args, **attributes):
         self.popen_args = popen_args
@@ -16,7 +17,7 @@ class SubprocessActionTag(ActionTag):
         kw = loader.construct_mapping(node)
 
         class_kwargs = {}
-        for arg_name in ('arguments', 'banner'):
+        for arg_name in ('arguments', 'banner', 'echo'):
             arg_value = kw.get(arg_name)
             if arg_value:
                 class_kwargs[arg_name] = arg_value
@@ -31,6 +32,8 @@ class SubprocessActionTag(ActionTag):
         args = self.popen_args.to_dict()
         if 'manifest' in args:
             del args['manifest']
+        if self.echo:
+            print 'Executing: %s' % self.arguments
         p = sb.Popen(self.arguments, **args)
         p.wait()
 

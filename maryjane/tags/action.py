@@ -7,7 +7,7 @@ __author__ = 'vahid'
 class ActionTag(DictionaryTag):
 
     def execute(self):
-        if hasattr(self, 'banner'):
+        if hasattr(self, 'banner') and self.banner.strip():
             print self.banner
 
     def __repr__(self):
