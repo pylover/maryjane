@@ -11,7 +11,8 @@ out.css
 build
 dist
 *.egg-info
+.idea
 maryjane/tests/out.js
 maryjane/tests/minify_test*.js
-.ideamaryjane/tests/stuff/*.gz
-.idea
+maryjane/tests/stuff/a-b.txt
+maryjane/tests/stuff/*.gz
