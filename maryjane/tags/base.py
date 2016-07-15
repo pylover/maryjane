@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from abc import ABCMeta, abstractmethod
 
-__author__ = 'vahid'
 
 class BaseTag(object):
     __metaclass__ = ABCMeta
@@ -16,6 +15,7 @@ class BaseTag(object):
         elif isinstance(v, list):
             return [i if not isinstance(i, LazyTag) else i.lazy_value() for i in v]
         return v
+
 
 class DictionaryTag(BaseTag):
 

@@ -35,7 +35,7 @@ class SubprocessActionTag(ActionTag):
         if 'manifest' in args:
             del args['manifest']
         if self.echo:
-            print 'Executing: %s' % self.arguments
+            print('Executing: %s' % self.arguments)
         p = sb.Popen(self.arguments, **args)
         p.wait()
 

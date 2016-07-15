@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import glob
-
+from maryjane.compat import basestring
 __author__ = 'vahid'
 
 

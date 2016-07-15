@@ -3,7 +3,6 @@ from maryjane.tags.base import DictionaryTag
 from maryjane.helpers import split_paths
 from watchdog.events import FileSystemEventHandler
 import traceback
-__author__ = 'vahid'
 
 
 class TaskTag(DictionaryTag):
@@ -14,15 +13,15 @@ class TaskTag(DictionaryTag):
             attributes['priority'] = int(attributes['priority'])
         super(TaskTag, self).__init__(manifest, **attributes)
 
-
     def execute_actions(self):
         if hasattr(self, 'banner'):
-            print self.banner
+            print(self.banner)
         for action in self.actions:
             action.execute()
 
     def __repr__(self):
         return '<TaskTag>'
+
 
 class TaskEventHandler(FileSystemEventHandler):
     def __init__(self, task):
@@ -35,6 +34,7 @@ class TaskEventHandler(FileSystemEventHandler):
             self.task.execute_if_needed(event)
         except:
             traceback.print_exc()
+
 
 class ObservableTaskTag(TaskTag):
 
@@ -53,7 +53,6 @@ class ObservableTaskTag(TaskTag):
                     break
         else:
             update_needed = True
-
 
         if update_needed:
             self.execute_actions()

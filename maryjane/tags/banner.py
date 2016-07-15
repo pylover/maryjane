@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 from maryjane.tags.action import ActionTag
 
-__author__ = 'vahid'
 
 class BannerActionTag(ActionTag):
 
@@ -11,7 +11,7 @@ class BannerActionTag(ActionTag):
 
     def execute(self):
         super(BannerActionTag, self).execute()
-        print self.text
+        print(self.text)
 
     def __repr__(self):
         return '<BannerActionTag %s>' % self.executable
