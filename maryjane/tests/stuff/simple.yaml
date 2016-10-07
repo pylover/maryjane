@@ -1,0 +1,22 @@
+
+title: Test Project
+version: 0.1.0
+
+
+static: $here/static
+temp: $here/../temp
+
+bag:
+  count: 0
+
+task1:
+
+  file1: $static/file1.txt
+  files:
+    - $static/file1.txt
+    - $static/file2.txt
+
+  outfile: $temp/out.txt
+
+  SHELL: cat $file ${f for i in files} $outfile
+  PY: bag.count += 1
