@@ -173,18 +173,19 @@ class Project(object):
             # backward
             self.stack.pop()
 
-        key = line_data[1]
+        key = line_data[1] if len(line_data) > 2 else self.current_key
         if key.isupper():
-            value = self.parse_value(line_data[2])
-            if key == 'INCLUDE':
+            value = self.parse_value(line_data[len(line_data) - 1])
+            if not value:
+                self.current[key] = None
+            elif key == 'INCLUDE':
                 self.current.update(self.sub_parser(value).root)
-
             elif key == 'SHELL':
                 self.shell(value)
             elif key == 'ECHO':
                 print(value)
             elif key == 'PY':
-                exec(value, globals(), self.current)
+                exec(value, globals(), self.locals())
             elif key == 'WATCH':
                 self.watch(value)
             elif key == 'WATCH_ALL':
@@ -195,7 +196,7 @@ class Project(object):
                 raise MaryjaneSyntaxError(self.line_cursor, line, 'Invalid directive: %s' % key)
 
         elif isinstance(self.current, list):
-            self.current.append(self.parse_value(key))
+            self.current.append(self.parse_value(line_data[1]))
         else:
             self.current[key] = self.parse_value(line_data[2])
 

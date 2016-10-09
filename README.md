@@ -17,7 +17,9 @@ It's used to evaluate the values between `{}`, see the example:
 You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`
 
 ```yaml
-PY: from os.path import split
+PY:
+  - from os.path import split, exists
+  - from os import mkdir
 
 title: Test Project
 version: 0.1.0
@@ -42,13 +44,14 @@ task1:
   outfile: {temp}/out.txt
 
   ECHO: Concatenating {split(file1)[1]}, {', '.join(split(f)[1] for f in files)} -> {split(outfile)[1]}.
-  SHELL: mkdir -p $(dirname {outfile})
-  SHELL: cat {file1} {' '.join(files)} > {outfile}
+  SHELL:
+    - mkdir -p $(dirname {outfile})
+    - cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1
 
-WATCH: {here}               # Only this directory, not children.
-WATCH_ALL: {static}         # Recursive, this directory and all children.
-NO_WATCH: {static}/images   # exclude from `WATCH_ALL`
+WATCH: {here}
+WATCH_ALL: {static}
+NO_WATCH: {here}/temp
 ```
 
     
