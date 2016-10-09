@@ -12,7 +12,4 @@ build
 dist
 *.egg-info
 .idea
-maryjane/tests/out.js
-maryjane/tests/minify_test*.js
-maryjane/tests/stuff/a-b.txt
-maryjane/tests/stuff/*.gz
+maryjane/tests/temp
