@@ -4,9 +4,9 @@ Simple Task runner
 
 ### Python 3.6 or higher required.
 
-The (Formatted string literals)[https://docs.python.org/3.6/whatsnew/3.6.html#pep-498-formatted-string-literals] are introduced in version 3.6.
+The [Formatted string literals](https://docs.python.org/3.6/whatsnew/3.6.html#pep-498-formatted-string-literals) are introduced in version 3.6.
 
-It's used to evaluate the values in `{}`, see the example:
+It's used to evaluate the values between `{}`, see the example:
 
 ### Install
 

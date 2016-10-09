@@ -2,7 +2,7 @@ from .core import Project
 from watchdog.observers import Observer
 import argparse
 
-__version__ = '4.0.0-dev0'
+__version__ = '4.0.0a'
 
 parser = argparse.ArgumentParser(description='File watcher and task manager')
 parser.add_argument('manifest', nargs='?', default='maryjane.yaml', help='Manifest file, default: "maryjane.yaml"')
