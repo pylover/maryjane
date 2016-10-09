@@ -27,12 +27,17 @@ setup(
             'maryjane = maryjane:main'
         ]
     },
+    license='WTFPL',
     classifiers=[
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'Programming Language :: Python',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Utilities',
-        ],
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: Other/Proprietary License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Software Development',
+        'Topic :: Utilities'
+        ]
     )
