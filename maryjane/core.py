@@ -3,6 +3,9 @@ import re
 from os.path import abspath, join, dirname
 import subprocess
 
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
 VALUE_PATTERN = '\s?(?P<value>.*)'
@@ -33,9 +36,18 @@ class DictNode(dict):
         self[key] = value
 
 
+class WatcherEventHandler(FileSystemEventHandler):
+    def __init__(self, project):
+        self.project = project
+        super(FileSystemEventHandler, self).__init__()
+
+    def on_any_event(self, event):
+        self.project.reload()
+
+
 class Project(object):
 
-    def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open):
+    def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open, watcher=None, watcher_type=Observer):
         self.filename = filename
         self.dict_type = dict_type
         self.list_type = list_type
@@ -44,6 +56,19 @@ class Project(object):
         self.indent_size = 0
         self.current_key = None
         self.stack = [dict_type()]
+
+        if watcher:
+            self.watcher = watcher
+        elif watcher_type:
+            self.watcher = watcher_type()
+        else:
+            self.watcher = None
+
+        if self.watcher:
+            self.watch_handler = WatcherEventHandler(self)
+        else:
+            self.watch_handler = None
+
         globals().update(here=abspath(dirname(filename)))
         with opener(filename) as f:
             for l in f:
@@ -53,12 +78,33 @@ class Project(object):
                 self.parse_line(l)
 
     def reload(self):
+        if self.watcher:
+            self.watcher.unschedule_all()
+
+        print("Reloading")
         self.__init__(
             self.filename,
             dict_type=self.dict_type,
             list_type=self.list_type,
             opener=self.opener
         )
+
+    def watch(self, path, recursive=False):
+        if self.watcher is None:
+            return
+
+        print('Watching for %s' % path)
+        self.watcher.schedule(self.watch_handler, path, recursive=recursive)
+
+    def unwatch(self, path):
+        if self.watcher is None:
+            return
+
+        # noinspection PyProtectedMember
+        for w in self.watcher._watches:
+            if w.path == path:
+                print('Un-watching for %s' % path)
+                self.watcher.unschedule(w)
 
     @property
     def current(self):
@@ -94,7 +140,8 @@ class Project(object):
             filename,
             dict_type=self.dict_type,
             list_type=self.list_type,
-            opener=self.opener
+            opener=self.opener,
+            watcher=self.watcher,
         )
         return parser
 
@@ -138,6 +185,12 @@ class Project(object):
                 print(value)
             elif key == 'PY':
                 exec(value, globals(), self.current)
+            elif key == 'WATCH':
+                self.watch(value)
+            elif key == 'WATCH_ALL':
+                self.watch(value, recursive=True)
+            elif key == 'NO_WATCH':
+                self.unwatch(value)
             else:
                 raise MaryjaneSyntaxError(self.line_cursor, line, 'Invalid directive: %s' % key)
 
@@ -151,15 +204,21 @@ class Project(object):
 
         self.current_key = key
 
-    def shell(self, cmd):
+    @classmethod
+    def shell(cls, cmd):
         try:
             subprocess.run(cmd, shell=True, check=True)
         except subprocess.CalledProcessError:
             pass
+
+    def wait_for_changes(self):
+        self.watcher.start()
+        self.watcher.join()
 
 
 if __name__ == '__main__':
     from pprint import pprint
     stuff_dir = join(abspath(dirname(__file__)), 'tests', 'stuff')
     p = Project(join(stuff_dir, 'simple.yaml'))
+    p.wait_for_changes()
     # pprint(p.root)

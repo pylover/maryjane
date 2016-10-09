@@ -20,7 +20,7 @@ setup(
     url='http://github.com/pylover/maryjane',
     description='Python file watcher and task manager',
     long_description=long_description,
-    install_requires=[],
+    install_requires=['watchdog'],
     packages=find_packages(),
     entry_points={
         'console_scripts': [

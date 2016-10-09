@@ -27,3 +27,7 @@ task1:
   SHELL: mkdir -p $(dirname {outfile})
   SHELL: cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1
+
+WATCH: {here}
+WATCH_ALL: {static}
+NO_WATCH: {here}/temp
