@@ -14,6 +14,7 @@ It's used to evaluate the values between `{}`, see the example:
 
 #### maryjane.yaml
 
+You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`
 
 ```yaml
 PY: from os.path import split
@@ -45,9 +46,9 @@ task1:
   SHELL: cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1
 
-WATCH: {here}
-WATCH_ALL: {static}
-NO_WATCH: {here}/temp
+WATCH: {here}               # Only this directory, not children.
+WATCH_ALL: {static}         # Recursive, this directory and all children.
+NO_WATCH: {static}/images   # exclude from `WATCH_ALL`
 ```
 
     
