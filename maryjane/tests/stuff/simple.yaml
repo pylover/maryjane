@@ -23,7 +23,7 @@ task1:
 
   outfile: {temp}/out.txt
 
-  ECHO: Concatenating {split(file1)[1]} {' '.join(split(f)[1] for f in files)} into: {split(outfile)}.
+  ECHO: Concatenating {split(file1)[1]}, {', '.join(split(f)[1] for f in files)} -> {split(outfile)[1]}.
   SHELL: mkdir -p $(dirname {outfile})
   SHELL: cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1

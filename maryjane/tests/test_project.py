@@ -12,8 +12,8 @@ class ProjectTestCase(unittest.TestCase):
         self.static_dir = join(self.stuff_dir, 'static')
 
     def test_parser(self):
-        parser = Project(join(self.stuff_dir, 'simple.yaml'))
-        root = parser.root
+        project = Project(join(self.stuff_dir, 'simple.yaml'))
+        root = project.root
 
         self.assertIsNotNone(root)
 
@@ -40,9 +40,9 @@ class ProjectTestCase(unittest.TestCase):
             join(self.stuff_dir, 'static', 'file2.txt'),
         ])
 
-    def test_project(self):
-        simple = Project(join(self.stuff_dir, 'simple.yaml'))
-        self.assertIsNotNone(simple)
+        project.reload()
+        root = project.root
+        self.assertEqual(root['task1']['file1'], join(self.stuff_dir, 'static', 'file1.txt'))
 
 
 if __name__ == '__main__':

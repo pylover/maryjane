@@ -1,7 +1,6 @@
 
 import re
 from os.path import abspath, join, dirname
-from collections import OrderedDict
 import subprocess
 
 
@@ -21,7 +20,7 @@ class MaryjaneSyntaxError(SyntaxError):
         super().__init__('%s\n%d: %s' % (msg, line_number, line))
 
 
-class DictNode(OrderedDict):
+class DictNode(dict):
 
     def __getattr__(self, item):
         if item in self:
@@ -30,33 +29,40 @@ class DictNode(OrderedDict):
 
     def __setattr__(self, key, value):
         if hasattr(self, key):
-            OrderedDict.__setattr__(self, key, value)
+            dict.__setattr__(self, key, value)
         self[key] = value
 
 
 class Project(object):
 
     def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open):
+        self.filename = filename
         self.dict_type = dict_type
         self.list_type = list_type
         self.opener = opener
         self.line_cursor = 0
         self.indent_size = 0
-        self.stack = [dict_type(here=dirname(filename))]
+        self.current_key = None
+        self.stack = [dict_type()]
+        globals().update(here=abspath(dirname(filename)))
         with opener(filename) as f:
             for l in f:
                 self.line_cursor += 1
                 if not l.strip() or COMMENT_PATTERN.match(l):
                     continue
                 self.parse_line(l)
-        del self.root['here']
+
+    def reload(self):
+        self.__init__(
+            self.filename,
+            dict_type=self.dict_type,
+            list_type=self.list_type,
+            opener=self.opener
+        )
 
     @property
     def current(self):
         return self.stack[-1]
-
-    def get_current_key(self):
-        return next(reversed(self.current))
 
     @property
     def level(self):
@@ -80,7 +86,7 @@ class Project(object):
         elif FLOAT_PATTERN.match(v):
             return float(v)
         else:
-            return eval('f"%s"' % v, self.root, self.locals())
+            return eval('f"%s"' % v, globals(), self.locals())
 
     def sub_parser(self, filename):
 
@@ -112,7 +118,7 @@ class Project(object):
 
         if self.level < level:
             # forward
-            parent_key = self.get_current_key()
+            parent_key = self.current_key
             if self.current[parent_key] is None:
                 self.current[parent_key] = (self.list_type if len(line_data) == 2 else self.dict_type)()
             self.stack.append(self.current[parent_key])
@@ -125,12 +131,13 @@ class Project(object):
             value = self.parse_value(line_data[2])
             if key == 'INCLUDE':
                 self.current.update(self.sub_parser(value).root)
+
             elif key == 'SHELL':
                 self.shell(value)
             elif key == 'ECHO':
                 print(value)
             elif key == 'PY':
-                exec(value, self.root, self.current)
+                exec(value, globals(), self.current)
             else:
                 raise MaryjaneSyntaxError(self.line_cursor, line, 'Invalid directive: %s' % key)
 
@@ -138,6 +145,11 @@ class Project(object):
             self.current.append(self.parse_value(key))
         else:
             self.current[key] = self.parse_value(line_data[2])
+
+        if not self.level:
+            globals().update(self.current)
+
+        self.current_key = key
 
     def shell(self, cmd):
         try:
