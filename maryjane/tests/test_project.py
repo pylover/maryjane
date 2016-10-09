@@ -12,7 +12,7 @@ class ProjectTestCase(unittest.TestCase):
         self.static_dir = join(self.stuff_dir, 'static')
 
     def test_parser(self):
-        project = Project(join(self.stuff_dir, 'simple.yaml'))
+        project = Project(join(self.stuff_dir, 'maryjane.yaml'))
         root = project.root
 
         self.assertIsNotNone(root)
