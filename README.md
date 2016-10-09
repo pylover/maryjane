@@ -10,7 +10,9 @@ It's used to evaluate the values between `{}`, see the example:
 
 ### Install
 
+```shell
     $ pip install marynaje
+```
 
 #### maryjane.yaml
 
@@ -64,10 +66,14 @@ item1:
 
 #### Build
 
+```shell
     $ maryjane
-    
-to enable watcher:
+```
 
+#### Build & Watch:
+
+```shell
     $ maryjane -w
-    
+```
+
 Check out `../temp/out.txt` to see the result.
