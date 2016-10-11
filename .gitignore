@@ -12,4 +12,4 @@ build
 dist
 *.egg-info
 .idea
-maryjane/tests/temp
+tests/temp

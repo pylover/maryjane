@@ -1,5 +1,5 @@
 
-from setuptools import setup, find_packages
+from setuptools import setup
 import os.path
 import re
 
@@ -21,7 +21,7 @@ setup(
     description='Python file watcher and task manager',
     long_description=long_description,
     install_requires=['watchdog'],
-    packages=find_packages(),
+    py_modules=['maryjane'],
     entry_points={
         'console_scripts': [
             'maryjane = maryjane:main'

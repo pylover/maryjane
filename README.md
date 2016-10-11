@@ -1,6 +1,11 @@
 # MaryJane
 
-Simple Task runner
+[<img src="http://img.shields.io/pypi/v/maryjane.svg">](https://pypi.python.org/pypi/maryjane)
+
+
+Simple Task runner and build tool.
+
+
 
 ### Python 3.6 or higher required.
 

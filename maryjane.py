@@ -1,10 +1,30 @@
+"""
 
+           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                   Version 2, December 2004
+
+Copyright (C) 2016 Vahid Mardani
+
+Everyone is permitted to copy and distribute verbatim or modified
+copies of this license document, and changing it is allowed as long
+as the name is changed.
+
+           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+ 0. You just DO WHAT THE FUCK YOU WANT TO.
+
+
+"""
 import re
-from os.path import abspath, join, dirname
+from os.path import abspath, dirname
 import subprocess
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
+
+__version__ = '4.0.0b'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -217,9 +237,34 @@ class Project(object):
         self.watcher.join()
 
 
+def main(filename, watch=False):
+
+    try:
+        p = Project(filename, watcher_type=Observer if watch else None)
+        if watch:
+            return p.wait_for_changes()
+    except FileNotFoundError:
+        print("No such file: 'maryjane.yaml', You must have a `maryjane.yaml` in the current directory or specify a "
+              "manifest filename.", file=sys.stderr)
+        parser.print_help()
+    except KeyboardInterrupt:
+        print('CTRL+C detected.')
+        return 1
+
+
 if __name__ == '__main__':
-    from pprint import pprint
-    stuff_dir = join(abspath(dirname(__file__)), 'tests', 'stuff')
-    p = Project(join(stuff_dir, 'simple.yaml'))
-    p.wait_for_changes()
-    # pprint(p.root)
+    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(description='File watcher and task manager')
+    parser.add_argument('manifest', nargs='?', default='maryjane.yaml', help='Manifest file, default: "maryjane.yaml"')
+    parser.add_argument('-w', '--watch', dest='watch', action='store_true',
+                        help='Watch for modifications, and execute tasks if needed.')
+    parser.add_argument('-V', '--version', dest='version', action='store_true', help='Show version.')
+
+    args = parser.parse_args()
+
+    if args.version:
+        print(__version__)
+    else:
+        sys.exit(main(args.manifest, args.watch))
