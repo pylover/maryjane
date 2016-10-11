@@ -24,7 +24,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 
-__version__ = '4.0.0b'
+__version__ = '4.0.0b1'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
