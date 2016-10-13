@@ -29,7 +29,11 @@ $ pip install libsass
 
 #### maryjane.yaml
 
-You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`
+You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`. All `UPPER-CASED` keys are reserved for directives.
+
+Currently the `PY`, `SHELL`, `ECHO`, `WATCH`, `WATCH_ALL`, `NO_WATCH` and `SASS` are supported. See the example for details:
+
+Multiline expressions are started, and terminated by `$$`. They should preserve indent. 
 
 ```yaml
 
@@ -143,3 +147,13 @@ Watching for /home/vahid/workspace/maryjane/test_stuff/static
 ```
 
 Check out `../temp/out.txt` to see the result.
+
+
+### Change Log
+
+#### 4.2.0b1
+
+- Multiline python code and text: #7
+- Optional SASS Compiler: #6
+- Watcher: #2
+- Internal YAML-like parser: #1

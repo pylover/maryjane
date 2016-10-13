@@ -18,8 +18,8 @@ bag:
   INCLUDE: {here}/simple.dict.yaml
 
 title: $$
-  A simple multi=line
-  text.A simple multi=line
+  A simple multi-line
+  text.A simple multi-line
   text. $$
 
 task1:
