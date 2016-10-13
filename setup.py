@@ -8,8 +8,7 @@ with open(os.path.join(os.path.dirname(__file__), 'maryjane.py')) as v_file:
     package_version = re.compile(r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
 
 long_description = """
-Maryjane is a Python automatic file merge tool.
-Docs at http://github.com/pylover/maryjane.
+Simple Task runner and build tool.
 """
 
 setup(
