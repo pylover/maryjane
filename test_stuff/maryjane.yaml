@@ -1,6 +1,6 @@
 
 PY:
-  - from os.path import split, exists
+  - from os.path import split, exists, basename
   - from os import mkdir
 
 title: Test Project
@@ -25,14 +25,17 @@ task1:
     - {static}/file2.txt
 
   outfile: {temp}/out.txt
+  outdir: {dirname(outfile)}
 
-  ECHO: Concatenating {split(file1)[1]}, {', '.join(split(f)[1] for f in files)} -> {split(outfile)[1]}.
+  ECHO: Concatenating {basename(file1)}, {', '.join(basename(f) for f in files)} -> {basename(outfile)}.
+  PY: if not exists(outdir): mkdir(outdir)
   SHELL:
-    - mkdir -p $(dirname {outfile})
-    - cat {file1} {' '.join(files)} > {outfile}
+    - touch {outfile}
+    - cat {file1} {' '.join(files)} >> {outfile}
   PY: bag.count += 1
 
 
+ECHO: Compiling index.sass > index.css
 SASS: {sass}/index.sass > {temp}/index.css
 
 WATCH:

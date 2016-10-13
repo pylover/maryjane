@@ -34,7 +34,7 @@ You can set any variable anywhere, and access from anywhere: see `file1` and `ba
 ```yaml
 
 PY:
-  - from os.path import split, exists
+  - from os.path import split, exists, basename
   - from os import mkdir
 
 title: Test Project
@@ -59,19 +59,25 @@ task1:
     - {static}/file2.txt
 
   outfile: {temp}/out.txt
+  outdir: {dirname(outfile)}
 
-  ECHO: Concatenating {split(file1)[1]}, {', '.join(split(f)[1] for f in files)} -> {split(outfile)[1]}.
+  ECHO: Concatenating {basename(file1)}, {', '.join(basename(f) for f in files)} -> {basename(outfile)}.
+  PY: if not exists(outdir): mkdir(outdir)
   SHELL:
-    - mkdir -p $(dirname {outfile})
-    - cat {file1} {' '.join(files)} > {outfile}
+    - touch {outfile}
+    - cat {file1} {' '.join(files)} >> {outfile}
   PY: bag.count += 1
 
 
+ECHO: Compiling index.sass > index.css
 SASS: {sass}/index.sass > {temp}/index.css
 
-WATCH: {here}
+WATCH:
+  - {here}
+  - {sass}
 WATCH_ALL: {static}
 NO_WATCH: {here}/temp
+
 
 ```
 
@@ -90,7 +96,9 @@ $ maryjane
 ```
 
 ```
+
 Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
+Compiling index.sass > index.css
 Watching for /home/vahid/workspace/maryjane/test_stuff
 Watching for /home/vahid/workspace/maryjane/test_stuff/sass
 Watching for /home/vahid/workspace/maryjane/test_stuff/static
@@ -105,12 +113,14 @@ $ maryjane -w
 
 ```
 Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
+Compiling index.sass > index.css
 Watching for /home/vahid/workspace/maryjane/test_stuff
 Watching for /home/vahid/workspace/maryjane/test_stuff/sass
 Watching for /home/vahid/workspace/maryjane/test_stuff/static
 
 Reloading
 Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
+Compiling index.sass > index.css
 Watching for /home/vahid/workspace/maryjane/test_stuff
 Watching for /home/vahid/workspace/maryjane/test_stuff/sass
 Watching for /home/vahid/workspace/maryjane/test_stuff/static
