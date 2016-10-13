@@ -31,7 +31,7 @@ $ pip install libsass
 
 You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`. All `UPPER-CASED` keys are reserved for directives.
 
-Currently the `PY`, `SHELL`, `ECHO`, `WATCH`, `WATCH_ALL`, `NO_WATCH` and `SASS` are supported. See the example for details:
+Currently the `INCLUDE`, `PY`, `SHELL`, `ECHO`, `WATCH`, `WATCH_ALL`, `NO_WATCH` and `SASS` are supported. See the example for details:
 
 Multiline expressions are started, and terminated by `$$`. They should preserve indent. 
 
