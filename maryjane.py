@@ -27,11 +27,10 @@ try:
     # noinspection PyPackageRequirements
     import sass as libsass
 except ImportError:
-    raise
     libsass = None
 
 
-__version__ = '4.2.0b0'
+__version__ = '4.2.0b1'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
