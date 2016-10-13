@@ -118,9 +118,6 @@ $ maryjane
 
 Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
 Compiling index.sass > index.css
-Watching for /home/vahid/workspace/maryjane/test_stuff
-Watching for /home/vahid/workspace/maryjane/test_stuff/sass
-Watching for /home/vahid/workspace/maryjane/test_stuff/static
 
 ```
 
