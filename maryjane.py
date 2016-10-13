@@ -264,8 +264,6 @@ class Project(object):
                 self.current_key = key
             return
 
-
-
     @classmethod
     def shell(cls, cmd):
         try:
