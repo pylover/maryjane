@@ -23,8 +23,15 @@ import subprocess
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+try:
+    # noinspection PyPackageRequirements
+    import sass as libsass
+except ImportError:
+    raise
+    libsass = None
 
-__version__ = '4.0.0b1'
+
+__version__ = '4.1.0b0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -66,6 +73,8 @@ class WatcherEventHandler(FileSystemEventHandler):
 
 
 class Project(object):
+    watcher = None
+    watch_handler = None
 
     def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open, watcher=None, watcher_type=Observer):
         self.filename = filename
@@ -81,13 +90,9 @@ class Project(object):
             self.watcher = watcher
         elif watcher_type:
             self.watcher = watcher_type()
-        else:
-            self.watcher = None
 
         if self.watcher:
             self.watch_handler = WatcherEventHandler(self)
-        else:
-            self.watch_handler = None
 
         globals().update(here=abspath(dirname(filename)))
         with opener(filename) as f:
@@ -106,7 +111,9 @@ class Project(object):
             self.filename,
             dict_type=self.dict_type,
             list_type=self.list_type,
-            opener=self.opener
+            opener=self.opener,
+            watcher_type=None,
+            watcher=self.watcher
         )
 
     def watch(self, path, recursive=False):
@@ -144,7 +151,11 @@ class Project(object):
                 return node
 
     def parse_value(self, v):
-        if v is None or not v.strip():
+        if v is None:
+            return None
+
+        v = v.strip()
+        if not v:
             return None
 
         if INTEGER_PATTERN.match(v):
@@ -212,6 +223,8 @@ class Project(object):
                 self.watch(value, recursive=True)
             elif key == 'NO_WATCH':
                 self.unwatch(value)
+            elif key == 'SASS':
+                self.compile_sass(value)
             else:
                 raise MaryjaneSyntaxError(self.line_cursor, line, 'Invalid directive: %s' % key)
 
@@ -236,24 +249,26 @@ class Project(object):
         self.watcher.start()
         self.watcher.join()
 
-
-def main(filename, watch=False):
-
-    try:
-        p = Project(filename, watcher_type=Observer if watch else None)
-        if watch:
-            return p.wait_for_changes()
-    except FileNotFoundError:
-        print("No such file: 'maryjane.yaml', You must have a `maryjane.yaml` in the current directory or specify a "
-              "manifest filename.", file=sys.stderr)
-        parser.print_help()
-    except KeyboardInterrupt:
-        print('CTRL+C detected.')
-        return 1
+    @classmethod
+    def compile_sass(cls, params):
+        if libsass is None:
+            raise ImportError(
+                'In order, to use `SASS` tags, please install the `libsass` using: `pip install libsass`',
+                name='libsass',
+            )
+        src, dst = params.split('>') if '>' in params else params.split(' ')
+        src, dst = src.strip(), dst.strip()
+        with open(dst, 'w') as f:
+            f.write(libsass.compile(filename=src))
 
 
-if __name__ == '__main__':
-    import sys
+def quickstart(filename, watch=False):
+    p = Project(filename, watcher_type=Observer if watch else None)
+    if watch:
+        return p.wait_for_changes()
+
+
+def main():
     import argparse
 
     parser = argparse.ArgumentParser(description='File watcher and task manager')
@@ -266,5 +281,23 @@ if __name__ == '__main__':
 
     if args.version:
         print(__version__)
-    else:
-        sys.exit(main(args.manifest, args.watch))
+        return
+
+    try:
+        return quickstart(args.manifest, args.watch)
+    except FileNotFoundError:
+        print(
+            "No such file: 'maryjane.yaml', You must have a `maryjane.yaml` in the current directory or specify a "
+            "manifest filename.", file=sys.stderr)
+        parser.print_help()
+    except KeyboardInterrupt:
+        print('CTRL+C detected.')
+        return 1
+
+
+
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())
+

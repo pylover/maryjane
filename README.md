@@ -19,11 +19,20 @@ It's used to evaluate the values between `{}`, see the example:
 $ pip install marynaje
 ```
 
+If you whant to compile SASS using `libsass` and it's python wrapper:
+ 
+
+```shell
+$ pip install libsass
+```
+ 
+
 #### maryjane.yaml
 
 You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`
 
 ```yaml
+
 PY:
   - from os.path import split, exists
   - from os import mkdir
@@ -34,6 +43,7 @@ version: 0.1.0
 empty:
 
 static: {here}/static
+sass: {here}/sass
 temp: {here}/../temp
 
 bag:
@@ -56,9 +66,13 @@ task1:
     - cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1
 
+
+SASS: {sass}/index.sass > {temp}/index.css
+
 WATCH: {here}
 WATCH_ALL: {static}
 NO_WATCH: {here}/temp
+
 ```
 
     
@@ -75,10 +89,32 @@ item1:
 $ maryjane
 ```
 
+```
+Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
+Watching for /home/vahid/workspace/maryjane/test_stuff
+Watching for /home/vahid/workspace/maryjane/test_stuff/sass
+Watching for /home/vahid/workspace/maryjane/test_stuff/static
+
+```
+
 #### Build & Watch:
 
 ```shell
 $ maryjane -w
+```
+
+```
+Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
+Watching for /home/vahid/workspace/maryjane/test_stuff
+Watching for /home/vahid/workspace/maryjane/test_stuff/sass
+Watching for /home/vahid/workspace/maryjane/test_stuff/static
+
+Reloading
+Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
+Watching for /home/vahid/workspace/maryjane/test_stuff
+Watching for /home/vahid/workspace/maryjane/test_stuff/sass
+Watching for /home/vahid/workspace/maryjane/test_stuff/static
+
 ```
 
 Check out `../temp/out.txt` to see the result.

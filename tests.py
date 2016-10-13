@@ -8,7 +8,7 @@ class ProjectTestCase(unittest.TestCase):
 
     def setUp(self):
         self.this_dir = abspath(dirname(__file__))
-        self.stuff_dir = join(self.this_dir, 'stuff')
+        self.stuff_dir = join(self.this_dir, 'test_stuff')
         self.static_dir = join(self.stuff_dir, 'static')
 
     def test_parser(self):

@@ -9,6 +9,7 @@ version: 0.1.0
 empty:
 
 static: {here}/static
+sass: {here}/sass
 temp: {here}/../temp
 
 bag:
@@ -31,6 +32,11 @@ task1:
     - cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1
 
-WATCH: {here}
+
+SASS: {sass}/index.sass > {temp}/index.css
+
+WATCH:
+  - {here}
+  - {sass}
 WATCH_ALL: {static}
 NO_WATCH: {here}/temp
