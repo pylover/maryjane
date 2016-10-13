@@ -17,7 +17,9 @@ class ProjectTestCase(unittest.TestCase):
 
         self.assertIsNotNone(root)
 
-        self.assertEqual(root['title'], 'Test Project')
+        self.assertEqual(root['title'], '''A simple multi=line
+text.A simple multi=line
+text.''')
         self.assertEqual(root['version'], '0.1.0')
         self.assertIsNone(root['empty'])
 
@@ -27,7 +29,7 @@ class ProjectTestCase(unittest.TestCase):
             root['bag'],
             {
                 'avg': .34,
-                'count': 1,
+                'count': 11,
                 'item1': {
                     'item2': 'value2'
                 }

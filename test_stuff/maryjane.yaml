@@ -17,6 +17,11 @@ bag:
   avg: .34
   INCLUDE: {here}/simple.dict.yaml
 
+title: $$
+  A simple multi=line
+  text.A simple multi=line
+  text. $$
+
 task1:
 
   file1: {static}/file1.txt
@@ -28,7 +33,17 @@ task1:
   outdir: {dirname(outfile)}
 
   ECHO: Concatenating {basename(file1)}, {', '.join(basename(f) for f in files)} -> {basename(outfile)}.
-  PY: if not exists(outdir): mkdir(outdir)
+  PY:
+    - $$
+      if not exists(outdir):
+        mkdir(outdir)
+      $$
+
+    - $$
+      for i in range(5):
+        bag.count += i
+      $$
+
   SHELL:
     - touch {outfile}
     - cat {file1} {' '.join(files)} >> {outfile}

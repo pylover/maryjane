@@ -72,6 +72,10 @@ class WatcherEventHandler(FileSystemEventHandler):
         self.project.reload()
 
 
+class MultiLineValueDetected(Exception):
+    pass
+
+
 class Project(object):
     watcher = None
     watch_handler = None
@@ -85,6 +89,7 @@ class Project(object):
         self.indent_size = 0
         self.current_key = None
         self.stack = [dict_type()]
+        self.multiline_capture = None
 
         if watcher:
             self.watcher = watcher
@@ -154,16 +159,28 @@ class Project(object):
         if v is None:
             return None
 
-        v = v.strip()
-        if not v:
-            return None
+        if self.multiline_capture is None and v.startswith('$$'):
+            # Start Capture
+            self.multiline_capture = v[2:] + '\n'
+            raise MultiLineValueDetected()
+        elif self.multiline_capture is not None and v.endswith('$$\n'):
+            # End Capture
+            v = self.multiline_capture + v[:-3]
+            self.multiline_capture = None
+        elif self.multiline_capture is not None:
+            self.multiline_capture += v
+            raise MultiLineValueDetected()
+        else:
+            v = v.strip()
+            if not v:
+                return None
 
         if INTEGER_PATTERN.match(v):
             return int(v)
         elif FLOAT_PATTERN.match(v):
             return float(v)
         else:
-            return eval('f"%s"' % v, globals(), self.locals())
+            return eval('f"""%s"""' % v, globals(), self.locals())
 
     def sub_parser(self, filename):
 
@@ -177,66 +194,78 @@ class Project(object):
         return parser
 
     def parse_line(self, line):
-
-        for pattern in [KEY_VALUE_PATTERN, LIST_ITEM_PATTERN]:
-            match = pattern.match(line)
-            if match:
-                line_data = match.groups()
-                break
-        else:
-            raise MaryjaneSyntaxError(self.line_cursor, line, 'Cannot parse the line')
-
-        spaces = len(line_data[0])
-        if spaces:
-            if not self.indent_size:
-                self.indent_size = spaces
-            level = spaces // self.indent_size
-        else:
-            level = 0
-
-        if self.level < level:
-            # forward
-            parent_key = self.current_key
-            if self.current[parent_key] is None:
-                self.current[parent_key] = (self.list_type if len(line_data) == 2 else self.dict_type)()
-            self.stack.append(self.current[parent_key])
-        elif self.level > level:
-            # backward
-            self.stack.pop()
-
-        key = line_data[1] if len(line_data) > 2 else self.current_key
-        if key.isupper():
-            value = self.parse_value(line_data[len(line_data) - 1])
-            if not value:
-                self.current[key] = None
-            elif key == 'INCLUDE':
-                self.current.update(self.sub_parser(value).root)
-            elif key == 'SHELL':
-                self.shell(value)
-            elif key == 'ECHO':
-                print(value)
-            elif key == 'PY':
-                exec(value, globals(), self.locals())
-            elif key == 'WATCH':
-                self.watch(value)
-            elif key == 'WATCH_ALL':
-                self.watch(value, recursive=True)
-            elif key == 'NO_WATCH':
-                self.unwatch(value)
-            elif key == 'SASS':
-                self.compile_sass(value)
+        key = None
+        try:
+            if self.multiline_capture is not None:
+                line_data = self.indent_size * self.level, self.current_key, \
+                            self.parse_value(line[(self.level + 1) * self.indent_size:])
             else:
-                raise MaryjaneSyntaxError(self.line_cursor, line, 'Invalid directive: %s' % key)
+                for pattern in [KEY_VALUE_PATTERN, LIST_ITEM_PATTERN]:
+                    match = pattern.match(line)
+                    if match:
+                        line_data = match.groups()
+                        break
+                else:
+                    raise MaryjaneSyntaxError(self.line_cursor, line, 'Cannot parse the line')
 
-        elif isinstance(self.current, list):
-            self.current.append(self.parse_value(line_data[1]))
-        else:
-            self.current[key] = self.parse_value(line_data[2])
+                spaces = len(line_data[0])
+                if spaces:
+                    if not self.indent_size:
+                        self.indent_size = spaces
+                    level = spaces // self.indent_size
+                else:
+                    level = 0
 
-        if not self.level:
-            globals().update(self.current)
+                if self.level < level:
+                    # forward
+                    parent_key = self.current_key
+                    if self.current[parent_key] is None:
+                        self.current[parent_key] = (self.list_type if len(line_data) == 2 else self.dict_type)()
+                    self.stack.append(self.current[parent_key])
+                elif self.level > level:
+                    # backward
+                    self.stack.pop()
 
-        self.current_key = key
+            key = line_data[1] if len(line_data) > 2 else self.current_key
+
+            if key.isupper():
+                value = self.parse_value(line_data[len(line_data) - 1])
+                if not value:
+                    self.current[key] = None
+                elif key == 'INCLUDE':
+                    self.current.update(self.sub_parser(value).root)
+                elif key == 'SHELL':
+                    self.shell(value)
+                elif key == 'ECHO':
+                    print(value)
+                elif key == 'PY':
+                    exec(value, globals(), self.locals())
+                elif key == 'WATCH':
+                    self.watch(value)
+                elif key == 'WATCH_ALL':
+                    self.watch(value, recursive=True)
+                elif key == 'NO_WATCH':
+                    self.unwatch(value)
+                elif key == 'SASS':
+                    self.compile_sass(value)
+                else:
+                    raise MaryjaneSyntaxError(self.line_cursor, line, 'Invalid directive: %s' % key)
+
+            elif isinstance(self.current, list):
+                self.current.append(self.parse_value(line_data[1]))
+            else:
+                self.current[key] = self.parse_value(line_data[2])
+
+            if not self.level:
+                globals().update(self.current)
+
+            self.current_key = key
+        except MultiLineValueDetected:
+            if key:
+                self.current_key = key
+            return
+
+
 
     @classmethod
     def shell(cls, cmd):
@@ -295,9 +324,6 @@ def main():
         return 1
 
 
-
-
 if __name__ == '__main__':
     import sys
     sys.exit(main())
-
