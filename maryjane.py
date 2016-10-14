@@ -17,7 +17,7 @@ as the name is changed.
 
 """
 import re
-from os.path import abspath, dirname, isfile, isdir
+from os.path import abspath, dirname, isdir
 import subprocess
 
 from watchdog.observers import Observer
@@ -30,7 +30,7 @@ except ImportError:
     libsass = None
 
 
-__version__ = '4.3.3b0'
+__version__ = '4.3.4b0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -237,9 +237,10 @@ class Project(object):
                     if self.current[parent_key] is None:
                         self.current[parent_key] = (self.list_type if len(line_data) == 2 else self.dict_type)()
                     self.stack.append((parent_key, self.current[parent_key]))
-                elif self.level > level:
-                    # backward
-                    self.stack.pop()
+                else:
+                    while self.level > level:
+                        # backward
+                        self.stack.pop()
 
                 if self.filter_match and self.filter_match > self.level:
                     self.filter_match = None
