@@ -30,7 +30,7 @@ except ImportError:
     libsass = None
 
 
-__version__ = '4.2.0b4'
+__version__ = '4.2.1b0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -110,7 +110,6 @@ class Project(object):
         if self.watcher:
             self.watcher.unschedule_all()
 
-        print("Reloading")
         self.__init__(
             self.filename,
             dict_type=self.dict_type,
@@ -124,7 +123,6 @@ class Project(object):
         if self.watcher is None:
             return
 
-        print('Watching for %s' % path)
         self.watcher.schedule(self.watch_handler, path, recursive=recursive)
 
     def unwatch(self, path):
@@ -134,7 +132,6 @@ class Project(object):
         # noinspection PyProtectedMember
         for w in self.watcher._watches:
             if w.path == path:
-                print('Un-watching for %s' % path)
                 self.watcher.unschedule(w)
 
     @property

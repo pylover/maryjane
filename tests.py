@@ -17,8 +17,8 @@ class ProjectTestCase(unittest.TestCase):
 
         self.assertIsNotNone(root)
 
-        self.assertEqual(root['title'], '''A simple multi=line
-text.A simple multi=line
+        self.assertEqual(root['title'], '''A simple multi-line
+text.A simple multi-line
 text.''')
         self.assertEqual(root['version'], '0.1.0')
         self.assertIsNone(root['empty'])
