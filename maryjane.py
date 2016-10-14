@@ -30,7 +30,7 @@ except ImportError:
     libsass = None
 
 
-__version__ = '4.3.1b0'
+__version__ = '4.3.2b0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -135,9 +135,10 @@ class Project(object):
 
         filter_key = None if self.level <= 0 else self.stack[-1][0]
 
+        directory = abspath(path if isdir(path) else dirname(path))
         self.watch_handlers[filter_key] = self.watcher.schedule(
             WatcherEventHandler(self, path, filter_key=filter_key),
-            dirname(path) if isfile(path) else path,
+            directory,
             recursive=recursive,
         )
 
