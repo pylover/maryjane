@@ -36,15 +36,15 @@ text.''')
             }
         )
 
-        self.assertEqual(root['task1']['file1'], join(self.stuff_dir, 'static', 'file1.txt'))
-        self.assertEqual(root['task1']['files'], [
+        self.assertEqual(root['text_files']['file1'], join(self.stuff_dir, 'static', 'file1.txt'))
+        self.assertEqual(root['text_files']['files'], [
             join(self.stuff_dir, 'static', 'file1.txt'),
             join(self.stuff_dir, 'static', 'file2.txt'),
         ])
 
         project.reload()
         root = project.root
-        self.assertEqual(root['task1']['file1'], join(self.stuff_dir, 'static', 'file1.txt'))
+        self.assertEqual(root['text_files']['file1'], join(self.stuff_dir, 'static', 'file1.txt'))
 
 
 if __name__ == '__main__':

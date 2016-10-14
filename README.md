@@ -37,6 +37,7 @@ Multiline expressions are started, and terminated by `$$`. They should preserve 
 
 ```yaml
 
+
 PY:
   - from os.path import split, exists, basename
   - from os import mkdir
@@ -56,11 +57,11 @@ bag:
   INCLUDE: {here}/simple.dict.yaml
 
 title: $$
-  A simple multi=line
-  text.A simple multi=line
+  A simple multi-line
+  text.A simple multi-line
   text. $$
 
-task1:
+text_files:
 
   file1: {static}/file1.txt
   files:
@@ -87,14 +88,19 @@ task1:
     - cat {file1} {' '.join(files)} >> {outfile}
   PY: bag.count += 1
 
+  ECHO: Watching for {static}
+  WATCH: {static}
 
-ECHO: Compiling index.sass > index.css
-SASS: {sass}/index.sass > {temp}/index.css
+styles:
+  ECHO: Compiling index.sass > index.css
+  SASS: {sass}/index.sass > {temp}/index.css
 
-WATCH:
-  - {here}
-  - {sass}
-WATCH_ALL: {static}
+  ECHO: Watching for {sass}
+  WATCH: {sass}
+
+
+ECHO: Watching for {here}
+WATCH: {here}
 NO_WATCH: {here}/temp
 
 
@@ -129,17 +135,35 @@ $ maryjane -w
 
 ```
 Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
+Watching for /home/vahid/workspace/maryjane/test_stuff/static
 Compiling index.sass > index.css
-Watching for /home/vahid/workspace/maryjane/test_stuff
 Watching for /home/vahid/workspace/maryjane/test_stuff/sass
+Watching for /home/vahid/workspace/maryjane/test_stuff
+```
+
+After change in `test_stuff/sass` directory:
+
+```
+Compiling index.sass > index.css
+Watching for /home/vahid/workspace/maryjane/test_stuff/sass
+```
+
+After change in `test_stuff/static` directory:
+
+```
+Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
 Watching for /home/vahid/workspace/maryjane/test_stuff/static
 
-Reloading
+```
+
+After change in `test_stuff/` directory:
+
+```
 Concatenating file1.txt, file1.txt, file2.txt -> out.txt.
-Compiling index.sass > index.css
-Watching for /home/vahid/workspace/maryjane/test_stuff
-Watching for /home/vahid/workspace/maryjane/test_stuff/sass
 Watching for /home/vahid/workspace/maryjane/test_stuff/static
+Compiling index.sass > index.css
+Watching for /home/vahid/workspace/maryjane/test_stuff/sass
+Watching for /home/vahid/workspace/maryjane/test_stuff
 
 ```
 

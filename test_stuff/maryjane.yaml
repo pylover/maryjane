@@ -22,7 +22,7 @@ title: $$
   text.A simple multi-line
   text. $$
 
-task1:
+text_files:
 
   file1: {static}/file1.txt
   files:
@@ -49,12 +49,18 @@ task1:
     - cat {file1} {' '.join(files)} >> {outfile}
   PY: bag.count += 1
 
+  ECHO: Watching for {static}
+  WATCH: {static}
 
-ECHO: Compiling index.sass > index.css
-SASS: {sass}/index.sass > {temp}/index.css
+styles:
+  ECHO: Compiling index.sass > index.css
+  SASS: {sass}/index.sass > {temp}/index.css
 
-WATCH:
-  - {here}
-  - {sass}
-WATCH_ALL: {static}
+  ECHO: Watching for {sass}
+  WATCH: {sass}
+
+
+ECHO: Watching for {here}
+WATCH: {here}
 NO_WATCH: {here}/temp
+

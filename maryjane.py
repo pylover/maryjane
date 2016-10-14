@@ -30,7 +30,7 @@ except ImportError:
     libsass = None
 
 
-__version__ = '4.2.1b1'
+__version__ = '4.3.0b0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -63,12 +63,13 @@ class DictNode(dict):
 
 
 class WatcherEventHandler(FileSystemEventHandler):
-    def __init__(self, project):
+    def __init__(self, project, filter_key=None):
         self.project = project
+        self.filter_key = filter_key
         super(FileSystemEventHandler, self).__init__()
 
     def on_any_event(self, event):
-        self.project.reload()
+        self.project.reload(filter_key=self.filter_key)
 
 
 class MultiLineValueDetected(Exception):
@@ -77,9 +78,11 @@ class MultiLineValueDetected(Exception):
 
 class Project(object):
     watcher = None
-    watch_handler = None
+    watch_handlers = None
+    filter_match = None
 
-    def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open, watcher=None, watcher_type=Observer):
+    def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open, watcher=None, watcher_type=Observer,
+                 filter_key=None):
         self.filename = filename
         self.dict_type = dict_type
         self.list_type = list_type
@@ -87,16 +90,17 @@ class Project(object):
         self.line_cursor = 0
         self.indent_size = 0
         self.current_key = None
-        self.stack = [dict_type()]
+        self.stack = [(str, dict_type())]
         self.multiline_capture = None
+        self.filter_key = filter_key
 
         if watcher:
             self.watcher = watcher
         elif watcher_type:
             self.watcher = watcher_type()
 
-        if self.watcher:
-            self.watch_handler = WatcherEventHandler(self)
+        if self.watcher and self.watch_handlers is None:
+            self.watch_handlers = {}
 
         globals().update(here=abspath(dirname(filename)))
         with opener(filename) as f:
@@ -106,9 +110,12 @@ class Project(object):
                     continue
                 self.parse_line(l)
 
-    def reload(self):
+    def reload(self, filter_key=None):
         if self.watcher:
-            self.watcher.unschedule_all()
+            if filter_key and filter_key in self.watch_handlers:
+                self.watcher.unschedule(self.watch_handlers[filter_key])
+            else:
+                self.watcher.unschedule_all()
 
         self.__init__(
             self.filename,
@@ -116,16 +123,24 @@ class Project(object):
             list_type=self.list_type,
             opener=self.opener,
             watcher_type=None,
-            watcher=self.watcher
+            watcher=self.watcher,
+            filter_key=filter_key
         )
 
     def watch(self, path, recursive=False):
-        if self.watcher is None:
+        if self.watcher is None or not self.is_active:
             return
 
-        self.watcher.schedule(self.watch_handler, path, recursive=recursive)
+        filter_key = None if self.level <= 0 else self.stack[-1][0]
+
+        self.watch_handlers[filter_key] = self.watcher.schedule(
+            WatcherEventHandler(self, filter_key=filter_key),
+            path,
+            recursive=recursive,
+        )
 
     def unwatch(self, path):
+        # FIXME: TEST IT
         if self.watcher is None:
             return
 
@@ -136,7 +151,7 @@ class Project(object):
 
     @property
     def current(self):
-        return self.stack[-1]
+        return self.stack[-1][1]
 
     @property
     def level(self):
@@ -144,10 +159,10 @@ class Project(object):
 
     @property
     def root(self):
-        return self.stack[0]
+        return self.stack[0][1]
 
-    def locals(self):
-        for node in self.stack[::-1]:
+    def last_dict(self):
+        for key, node in self.stack[::-1]:
             if isinstance(node, dict):
                 return node
 
@@ -176,7 +191,7 @@ class Project(object):
         elif FLOAT_PATTERN.match(v):
             return float(v)
         else:
-            return eval('f"""%s"""' % v, globals(), self.locals())
+            return eval('f"""%s"""' % v, globals(), self.last_dict())
 
     def sub_parser(self, filename):
 
@@ -217,10 +232,13 @@ class Project(object):
                     parent_key = self.current_key
                     if self.current[parent_key] is None:
                         self.current[parent_key] = (self.list_type if len(line_data) == 2 else self.dict_type)()
-                    self.stack.append(self.current[parent_key])
+                    self.stack.append((parent_key, self.current[parent_key]))
                 elif self.level > level:
                     # backward
                     self.stack.pop()
+
+                if self.filter_match and self.filter_match > self.level:
+                    self.filter_match = None
 
             key = line_data[1] if len(line_data) > 2 else self.current_key
 
@@ -233,9 +251,9 @@ class Project(object):
                 elif key == 'SHELL':
                     self.shell(value)
                 elif key == 'ECHO':
-                    print(value)
+                    self.echo(value)
                 elif key == 'PY':
-                    exec(value, globals(), self.locals())
+                    self.py_exec(value)
                 elif key == 'WATCH':
                     self.watch(value)
                 elif key == 'WATCH_ALL':
@@ -255,14 +273,32 @@ class Project(object):
             if not self.level:
                 globals().update(self.current)
 
+            if self.filter_key == key:
+                self.filter_match = self.level + 1
+
             self.current_key = key
         except MultiLineValueDetected:
             if key:
                 self.current_key = key
             return
 
-    @classmethod
-    def shell(cls, cmd):
+    @property
+    def is_active(self):
+        return self.filter_key is None or self.filter_match
+
+    def echo(self, msg):
+        if not self.is_active:
+            return
+        print(msg)
+
+    def py_exec(self, statement):
+        if not self.is_active:
+            return
+        exec(statement, globals(), self.last_dict())
+
+    def shell(self, cmd):
+        if not self.is_active:
+            return
         try:
             subprocess.run(cmd, shell=True, check=True)
         except subprocess.CalledProcessError:
@@ -272,8 +308,10 @@ class Project(object):
         self.watcher.start()
         self.watcher.join()
 
-    @classmethod
-    def compile_sass(cls, params):
+    def compile_sass(self, params):
+        if not self.is_active:
+            return
+
         if libsass is None:
             raise ImportError(
                 'In order, to use `SASS` tags, please install the `libsass` using: `pip install libsass`',
