@@ -27,7 +27,7 @@ $ pip install libsass
 ```
  
 
-#### maryjane.yaml
+### maryjane.yaml
 
 You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`. All `UPPER-CASED` keys are reserved for directives.
 
@@ -169,6 +169,76 @@ Watching for /home/vahid/workspace/maryjane/test_stuff
 
 Check out `../temp/out.txt` to see the result.
 
+### Another Example:
+
+```yaml
+
+
+PY:
+  - from os.path import relpath
+
+maryjane: 4
+version: 0.1.0
+title: abzaravaran
+
+ECHO: Loading project: {title} v{version} by maryjane: {maryjane}
+
+root: {here}/abzaravaran
+public: {root}/public
+lib: {public}/lib
+crlf: \n
+
+PY: $$
+  def rel(p):
+    return relpath(p, here)
+  $$
+
+styles:
+  sass: {root}/sass
+  css: {public}/css
+
+  ECHO: Building index.sass
+  SASS: {sass}/index.sass > {css}/index.css
+
+  ECHO: Watching for SASS files on: {rel(sass)}
+  WATCH: {sass}
+
+scripts:
+  javascripts: {root}/javascripts
+  bootstrap: {here}/../bootstrap/js/src
+
+  inputs:
+    - {lib}/jquery.min.js
+
+    # Bootstrap
+    - {bootstrap}/util.js
+    - {bootstrap}/alert.js
+    - {bootstrap}/button.js
+    - {bootstrap}/carousel.js
+    - {bootstrap}/collapse.js
+    - {bootstrap}/dropdown.js
+    - {bootstrap}/modal.js
+    - {bootstrap}/scrollspy.js
+    - {bootstrap}/tab.js
+    - {bootstrap}/tooltip.js
+    - {bootstrap}/popover.js
+
+    - {javascripts}/index.js
+
+  output: {public}/javascript/index.js
+
+  ECHO: $$
+    Concatenating:
+        - {(crlf + '    - ').join(rel(f) for f in inputs)}
+      Into:
+        - {rel(output)} $$
+
+  WATCH: {javascripts}
+
+WATCH: maryjane.yaml
+
+
+```
 
 ### Change Log
 
