@@ -17,7 +17,7 @@ as the name is changed.
 
 """
 import re
-from os.path import abspath, dirname
+from os.path import abspath, dirname, isfile, isdir
 import subprocess
 
 from watchdog.observers import Observer
@@ -30,7 +30,7 @@ except ImportError:
     libsass = None
 
 
-__version__ = '4.3.0b0'
+__version__ = '4.3.1b0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -63,13 +63,15 @@ class DictNode(dict):
 
 
 class WatcherEventHandler(FileSystemEventHandler):
-    def __init__(self, project, filter_key=None):
+    def __init__(self, project, path, filter_key=None):
+        self.path = path
         self.project = project
         self.filter_key = filter_key
         super(FileSystemEventHandler, self).__init__()
 
     def on_any_event(self, event):
-        self.project.reload(filter_key=self.filter_key)
+        if isdir(self.path) or event.src_path == self.path:
+            self.project.reload(filter_key=self.filter_key)
 
 
 class MultiLineValueDetected(Exception):
@@ -134,8 +136,8 @@ class Project(object):
         filter_key = None if self.level <= 0 else self.stack[-1][0]
 
         self.watch_handlers[filter_key] = self.watcher.schedule(
-            WatcherEventHandler(self, filter_key=filter_key),
-            path,
+            WatcherEventHandler(self, path, filter_key=filter_key),
+            dirname(path) if isfile(path) else path,
             recursive=recursive,
         )
 

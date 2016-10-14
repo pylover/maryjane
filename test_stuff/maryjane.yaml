@@ -61,6 +61,5 @@ styles:
 
 
 ECHO: Watching for {here}
-WATCH: {here}
+WATCH: {here}/maryjane.yaml
 NO_WATCH: {here}/temp
-
