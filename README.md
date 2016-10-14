@@ -262,25 +262,25 @@ Output:
 
 ```
 
-Loading project: abzaravaran v0.1.0 by maryjane: 4
+Loading project: myproject v0.1.0 by maryjane: 4
 
 #########
 ## CSS ##
 ######### 
 
 Building:
-    - abzaravaran/sass/index.sass
+    - myproject/sass/index.sass
   Into:
-    - abzaravaran/public/css/index.css
+    - myproject/public/css/index.css
 
-Watching for SASS files on: abzaravaran/sass
+Watching for SASS files on: myproject/sass
 
 #################
 ## Javascripts ##
 ################# 
 
 Concatenating:
-    - abzaravaran/public/lib/jquery.min.js
+    - myproject/public/lib/jquery.min.js
     - ../bootstrap/js/src/util.js
     - ../bootstrap/js/src/alert.js
     - ../bootstrap/js/src/button.js
@@ -292,11 +292,11 @@ Concatenating:
     - ../bootstrap/js/src/tab.js
     - ../bootstrap/js/src/tooltip.js
     - ../bootstrap/js/src/popover.js
-    - abzaravaran/javascripts/index.js
+    - myproject/javascripts/index.js
   Into:
-    - abzaravaran/public/javascript/index.js
+    - myproject/public/javascript/index.js
 
-Watching for javascript files on: abzaravaran/javascripts
+Watching for javascript files on: myproject/javascripts
 
 
 ```
@@ -309,7 +309,7 @@ After changing javascript files:
 ################# 
 
 Concatenating:
-    - abzaravaran/public/lib/jquery.min.js
+    - myproject/public/lib/jquery.min.js
     - ../bootstrap/js/src/util.js
     - ../bootstrap/js/src/alert.js
     - ../bootstrap/js/src/button.js
@@ -321,11 +321,11 @@ Concatenating:
     - ../bootstrap/js/src/tab.js
     - ../bootstrap/js/src/tooltip.js
     - ../bootstrap/js/src/popover.js
-    - abzaravaran/javascripts/index.js
+    - myproject/javascripts/index.js
   Into:
-    - abzaravaran/public/javascript/index.js
+    - myproject/public/javascript/index.js
 
-Watching for javascript files on: abzaravaran/javascripts
+Watching for javascript files on: myproject/javascripts
 
 
 ```
