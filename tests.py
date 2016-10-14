@@ -20,6 +20,7 @@ class ProjectTestCase(unittest.TestCase):
         self.assertEqual(root['title'], '''
 A simple multi-line
 text.A simple multi-line
+# not commented
 text. ''')
         self.assertEqual(root['version'], '0.1.0')
         self.assertIsNone(root['empty'])

@@ -30,7 +30,7 @@ except ImportError:
     libsass = None
 
 
-__version__ = '4.3.5b0'
+__version__ = '4.3.6b0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -108,8 +108,6 @@ class Project(object):
         with opener(filename) as f:
             for l in f:
                 self.line_cursor += 1
-                if not l.strip() or COMMENT_PATTERN.match(l):
-                    continue
                 self.parse_line(l)
 
     def reload(self, filter_key=None):
@@ -214,6 +212,9 @@ class Project(object):
                 line_data = self.indent_size * self.level, self.current_key, \
                             self.parse_value(line[(self.level + 1) * self.indent_size:])
             else:
+                if not line.strip() or COMMENT_PATTERN.match(line):
+                    return
+
                 for pattern in [KEY_VALUE_PATTERN, LIST_ITEM_PATTERN]:
                     match = pattern.match(line)
                     if match:
