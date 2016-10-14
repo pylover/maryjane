@@ -30,7 +30,7 @@ except ImportError:
     libsass = None
 
 
-__version__ = '4.2.1b0'
+__version__ = '4.2.1b1'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
