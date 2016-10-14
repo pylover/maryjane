@@ -30,7 +30,7 @@ except ImportError:
     libsass = None
 
 
-__version__ = '4.3.4b0'
+__version__ = '4.3.5b0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -186,8 +186,7 @@ class Project(object):
             self.multiline_capture += v
             raise MultiLineValueDetected()
         else:
-            v = v.strip()
-            if not v:
+            if not v.strip():
                 return None
 
         if INTEGER_PATTERN.match(v):
