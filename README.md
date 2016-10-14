@@ -179,11 +179,11 @@ PY:
 
 maryjane: 4
 version: 0.1.0
-title: abzaravaran
+title: myproject
 
 ECHO: Loading project: {title} v{version} by maryjane: {maryjane}
 
-root: {here}/abzaravaran
+root: {here}/myproject
 public: {root}/public
 lib: {public}/lib
 crlf: \n
@@ -194,16 +194,33 @@ PY: $$
   $$
 
 styles:
+  ECHO: $$
+    #########
+    ## CSS ##
+    ######### $$
   sass: {root}/sass
   css: {public}/css
+  input: {sass}/index.sass
+  output: {css}/index.css
 
-  ECHO: Building index.sass
-  SASS: {sass}/index.sass > {css}/index.css
+  ECHO: $$
+    Building:
+        - {rel(input)}
+      Into:
+        - {rel(output)}
+    $$
+
+  SASS: {input} > {output}
 
   ECHO: Watching for SASS files on: {rel(sass)}
   WATCH: {sass}
 
 scripts:
+  ECHO: $$
+    #################
+    ## Javascripts ##
+    ################# $$
+
   javascripts: {root}/javascripts
   bootstrap: {here}/../bootstrap/js/src
 
@@ -231,14 +248,88 @@ scripts:
     Concatenating:
         - {(crlf + '    - ').join(rel(f) for f in inputs)}
       Into:
-        - {rel(output)} $$
+        - {rel(output)}
+    $$
 
+  ECHO: Watching for javascript files on: {rel(javascripts)}
   WATCH: {javascripts}
 
 WATCH: maryjane.yaml
 
+```
+
+Output:
 
 ```
+
+Loading project: abzaravaran v0.1.0 by maryjane: 4
+
+#########
+## CSS ##
+######### 
+
+Building:
+    - abzaravaran/sass/index.sass
+  Into:
+    - abzaravaran/public/css/index.css
+
+Watching for SASS files on: abzaravaran/sass
+
+#################
+## Javascripts ##
+################# 
+
+Concatenating:
+    - abzaravaran/public/lib/jquery.min.js
+    - ../bootstrap/js/src/util.js
+    - ../bootstrap/js/src/alert.js
+    - ../bootstrap/js/src/button.js
+    - ../bootstrap/js/src/carousel.js
+    - ../bootstrap/js/src/collapse.js
+    - ../bootstrap/js/src/dropdown.js
+    - ../bootstrap/js/src/modal.js
+    - ../bootstrap/js/src/scrollspy.js
+    - ../bootstrap/js/src/tab.js
+    - ../bootstrap/js/src/tooltip.js
+    - ../bootstrap/js/src/popover.js
+    - abzaravaran/javascripts/index.js
+  Into:
+    - abzaravaran/public/javascript/index.js
+
+Watching for javascript files on: abzaravaran/javascripts
+
+
+```
+
+After changing javascript files:
+
+```
+#################
+## Javascripts ##
+################# 
+
+Concatenating:
+    - abzaravaran/public/lib/jquery.min.js
+    - ../bootstrap/js/src/util.js
+    - ../bootstrap/js/src/alert.js
+    - ../bootstrap/js/src/button.js
+    - ../bootstrap/js/src/carousel.js
+    - ../bootstrap/js/src/collapse.js
+    - ../bootstrap/js/src/dropdown.js
+    - ../bootstrap/js/src/modal.js
+    - ../bootstrap/js/src/scrollspy.js
+    - ../bootstrap/js/src/tab.js
+    - ../bootstrap/js/src/tooltip.js
+    - ../bootstrap/js/src/popover.js
+    - abzaravaran/javascripts/index.js
+  Into:
+    - abzaravaran/public/javascript/index.js
+
+Watching for javascript files on: abzaravaran/javascripts
+
+
+```
+
 
 ### Change Log
 
