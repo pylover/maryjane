@@ -5,10 +5,8 @@ before_install:
   - pip install -Ur requirements-dev.txt
 install: pip install -ve .
 script: coverage run --source maryjane $(which nosetests)
-after_success: coveralls
-after_deploy:
-  - coveralls
-  - python3 setup.py bdist_wheel upload
+after_success: coveralls --verbose
+after_deploy: python3 setup.py bdist_wheel upload
 deploy:
   provider: pypi
   user: Vahid.Mardani
