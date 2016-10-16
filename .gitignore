@@ -8,8 +8,10 @@ _svn
 .settings
 .settings/*
 out.css
+.coverage
 build
 dist
 *.egg-info
 .idea
 temp
+__pycache__/

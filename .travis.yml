@@ -2,10 +2,11 @@ language: python
 python: nightly
 before_install:
   - pip install -U pip setuptools wheel
-  - pip install -r requirements-dev.txt
+  - pip install -Ur requirements-dev.txt
 install: pip install -ve .
 script: coverage run --source maryjane $(which nosetests)
 after_success: coveralls
+after_deploy: python3 setup.py bdist_wheel upload
 deploy:
   provider: pypi
   user: Vahid.Mardani
@@ -13,6 +14,6 @@ deploy:
     secure: lpXPW0rk6iYk0dMwP1yR59vmt7gY/7xwcQe4k9lDZuKNdyaUgKG306o37mgSoQXSXEBzrRHhIXqHXRIpNUzgnhdB93CvwCD0dK0kZZKnyfUg8qop8kJttVSSzNhjDZE6db48ir77IaYNDdJCU5n16hCuRy7HKc+UMHzI9q6sf/w=
   on:
     tags: true
-    distributions: sdist bdist_wheel
+    distributions: sdist
     repo: pylover/maryjane
     all_branches: true
