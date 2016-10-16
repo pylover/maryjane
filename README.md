@@ -31,12 +31,11 @@ $ pip install libsass
 
 You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`. All `UPPER-CASED` keys are reserved for directives.
 
-Currently the `INCLUDE`, `PY`, `SHELL`, `ECHO`, `WATCH`, `WATCH_ALL`, `NO_WATCH` and `SASS` are supported. See the example for details:
+Currently the `INCLUDE`, `PY`, `SHELL`, `ECHO`, `WATCH`, `WATCH-ALL`, `NO-WATCH` and `SASS` are supported. See the example for details:
 
 Multiline expressions are started, and terminated by `$$`. They should preserve indent. 
 
 ```yaml
-
 
 PY:
   - from os.path import split, exists, basename
@@ -59,14 +58,17 @@ bag:
 title: $$
   A simple multi-line
   text.A simple multi-line
+  # not commented
   text. $$
 
 text_files:
 
   file1: {static}/file1.txt
   files:
-    - {static}/file1.txt
     - {static}/file2.txt
+    - {static}/file3.txt
+    - {static}/misc/no-watch-file.txt
+    - {static}/misc/file1.txt
 
   outfile: {temp}/out.txt
   outdir: {dirname(outfile)}
@@ -85,11 +87,13 @@ text_files:
 
   SHELL:
     - touch {outfile}
-    - cat {file1} {' '.join(files)} >> {outfile}
+    - cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1
 
   ECHO: Watching for {static}
-  WATCH: {static}
+  WATCH-ALL: {static}
+  NO-WATCH: {static}/misc/no-watch-file.txt
+
 
 styles:
   ECHO: Compiling index.sass > index.css
@@ -100,9 +104,7 @@ styles:
 
 
 ECHO: Watching for {here}
-WATCH: {here}
-NO_WATCH: {here}/temp
-
+WATCH: {here}/maryjane.yaml
 
 ```
 

@@ -35,7 +35,7 @@ __version__ = '4.3.6b0'
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
 VALUE_PATTERN = '\s?(?P<value>.*)'
-KEY_VALUE_PATTERN = re.compile('^{SPACE_PATTERN}(?P<key>[a-zA-Z0-9_]+):{VALUE_PATTERN}'.format(**locals()))
+KEY_VALUE_PATTERN = re.compile('^{SPACE_PATTERN}(?P<key>[a-zA-Z0-9_-]+):{VALUE_PATTERN}'.format(**locals()))
 LIST_ITEM_PATTERN = re.compile('^{SPACE_PATTERN}-{VALUE_PATTERN}'.format(**locals()))
 COMMENT_PATTERN = re.compile('^{SPACE_PATTERN}#{VALUE_PATTERN}'.format(**locals()))
 INTEGER_PATTERN = re.compile('^\d+$')
@@ -276,9 +276,9 @@ class Project(object):
                     self.py_exec(value)
                 elif key == 'WATCH':
                     self.watch(value)
-                elif key == 'WATCH_ALL':
+                elif key == 'WATCH-ALL':
                     self.watch(value, recursive=True)
-                elif key == 'NO_WATCH':
+                elif key == 'NO-WATCH':
                     self.exclude_watch(value)
                 elif key == 'SASS':
                     self.compile_sass(value)

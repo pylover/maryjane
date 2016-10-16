@@ -53,8 +53,9 @@ text_files:
   PY: bag.count += 1
 
   ECHO: Watching for {static}
-  WATCH_ALL: {static}
-  NO_WATCH: {static}/misc/no-watch-file.txt
+  WATCH-ALL: {static}
+  NO-WATCH: {static}/misc/no-watch-file.txt
+
 
 styles:
   ECHO: Compiling index.sass > index.css
@@ -66,4 +67,3 @@ styles:
 
 ECHO: Watching for {here}
 WATCH: {here}/maryjane.yaml
-NO_WATCH: {here}/temp
