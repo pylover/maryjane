@@ -1,4 +1,5 @@
 -r requirements-optional.txt
 coverage
 coveralls
+coveralls[yaml]
 nose
