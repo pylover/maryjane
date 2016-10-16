@@ -70,8 +70,18 @@ class WatcherEventHandler(FileSystemEventHandler):
         super(FileSystemEventHandler, self).__init__()
 
     def on_any_event(self, event):
-        if isdir(self.path) or event.src_path == self.path:
-            self.project.reload(filter_key=self.filter_key)
+        if not isdir(self.path) and event.src_path != self.path:
+            return
+
+        excludes = self.project.watch_excludes.get(self.filter_key)
+        if excludes:
+            src_path = event.src_path
+            src_dir = dirname(src_path)
+
+            if src_path in excludes or src_dir in excludes:
+                return
+
+        self.project.reload(filter_key=self.filter_key)
 
 
 class MultiLineValueDetected(Exception):
@@ -81,6 +91,7 @@ class MultiLineValueDetected(Exception):
 class Project(object):
     watcher = None
     watch_handlers = None
+    watch_excludes = None
     filter_match = None
 
     def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open, watcher=None, watcher_type=Observer,
@@ -104,6 +115,9 @@ class Project(object):
         if self.watcher and self.watch_handlers is None:
             self.watch_handlers = {}
 
+        if self.watcher and self.watch_excludes is None:
+            self.watch_excludes = {}
+
         globals().update(here=abspath(dirname(filename)))
         with opener(filename) as f:
             for l in f:
@@ -114,6 +128,7 @@ class Project(object):
         if self.watcher:
             if filter_key and filter_key in self.watch_handlers:
                 self.watcher.unschedule(self.watch_handlers[filter_key])
+                self.watch_excludes[filter_key] = set()
             else:
                 self.watcher.unschedule_all()
 
@@ -127,11 +142,14 @@ class Project(object):
             filter_key=filter_key
         )
 
+    def get_filter_key(self):
+        return None if self.level <= 0 else self.stack[-1][0]
+
     def watch(self, path, recursive=False):
         if self.watcher is None or not self.is_active:
             return
 
-        filter_key = None if self.level <= 0 else self.stack[-1][0]
+        filter_key = self.get_filter_key()
 
         path = abspath(path)
         directory = path if isdir(path) else dirname(path)
@@ -141,15 +159,12 @@ class Project(object):
             recursive=recursive,
         )
 
-    def unwatch(self, path):
-        # FIXME: TEST IT
-        if self.watcher is None:
+    def exclude_watch(self, path):
+        if self.watcher is None or not self.is_active:
             return
-
-        # noinspection PyProtectedMember
-        for w in self.watcher._watches:
-            if w.path == path:
-                self.watcher.unschedule(w)
+        filter_key = self.get_filter_key()
+        excluded_files = self.watch_excludes.setdefault(filter_key, set())
+        excluded_files.add(abspath(path))
 
     @property
     def current(self):
@@ -264,7 +279,7 @@ class Project(object):
                 elif key == 'WATCH_ALL':
                     self.watch(value, recursive=True)
                 elif key == 'NO_WATCH':
-                    self.unwatch(value)
+                    self.exclude_watch(value)
                 elif key == 'SASS':
                     self.compile_sass(value)
                 else:
