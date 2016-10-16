@@ -10,6 +10,7 @@ empty:
 
 static: {here}/static
 sass: {here}/sass
+contrib: {here}/contrib
 temp: {here}/../temp
 
 bag:
@@ -29,6 +30,7 @@ text_files:
   files:
     - {static}/file2.txt
     - {static}/file3.txt
+    - {contrib}/file1.txt
     - {static}/misc/no-watch-file.txt
     - {static}/misc/file1.txt
 
@@ -54,16 +56,20 @@ text_files:
 
   ECHO: Watching for {static}
   WATCH-ALL: {static}
+  WATCH: {contrib}/file1.txt
   NO-WATCH: {static}/misc/no-watch-file.txt
 
 
 styles:
   ECHO: Compiling index.sass > index.css
   SASS: {sass}/index.sass > {temp}/index.css
+  SHELL: sync
 
   ECHO: Watching for {sass}
   WATCH: {sass}
 
 
 ECHO: Watching for {here}
-WATCH: {here}/maryjane.yaml
+WATCH:
+  - {here}/maryjane.yaml
+  - {contrib}/dummy-file.txt

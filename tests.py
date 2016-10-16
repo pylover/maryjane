@@ -1,8 +1,10 @@
 import unittest
 import time
+import random
+from subprocess import CalledProcessError
 from os.path import abspath, join, dirname
 
-from maryjane import Project, Observer
+from maryjane import Project, Observer, MaryjaneSyntaxError
 
 WAIT = 1
 
@@ -13,10 +15,11 @@ class ProjectTestCase(unittest.TestCase):
         self.this_dir = abspath(dirname(__file__))
         self.stuff_dir = join(self.this_dir, 'test_stuff')
         self.static_dir = join(self.stuff_dir, 'static')
+        self.contrib_dir = join(self.stuff_dir, 'contrib')
         self.temp_dir = join(self.stuff_dir, '../temp')
 
     def test_parser(self):
-        project = Project(join(self.stuff_dir, 'maryjane.yaml'))
+        project = Project(join(self.stuff_dir, 'maryjane.yaml'), watcher_type=None)
         root = project.root
 
         self.assertIsNotNone(root)
@@ -46,9 +49,12 @@ text. ''')
         self.assertEqual(root['text_files']['files'], [
             join(self.stuff_dir, 'static', 'file2.txt'),
             join(self.stuff_dir, 'static', 'file3.txt'),
+            join(self.stuff_dir, 'contrib', 'file1.txt'),
             join(self.stuff_dir, 'static', 'misc', 'no-watch-file.txt'),
             join(self.stuff_dir, 'static', 'misc', 'file1.txt'),
         ])
+
+        self.assertRaises(AttributeError, lambda: root.non_exists)
 
         project.reload()
         root = project.root
@@ -58,7 +64,16 @@ text. ''')
         file1 = join(self.static_dir, 'file1.txt')
         misc_file1 = join(self.static_dir, 'misc', 'file1.txt')
         nowatch_file1 = join(self.static_dir, 'misc', 'no-watch-file.txt')
+        unused_file = join(self.contrib_dir, 'unused-file.txt')
+        dummy_file = join(self.contrib_dir, 'dummy-file.txt')
         outfile = join(self.temp_dir, 'out.txt')
+
+        # Reset files
+        with open(file1, 'w') as f:
+            f.write('file1\n')
+
+        with open(misc_file1, 'w') as f:
+            f.write('misc file1\n')
 
         with open(nowatch_file1, 'w') as f:
             f.write('excluded file\n')
@@ -67,6 +82,7 @@ text. ''')
         project.watcher.start()
         time.sleep(WAIT)
 
+        # Simple watch
         with open(file1, 'w') as f:
             f.write('file1 edited.\n')
 
@@ -107,6 +123,21 @@ text. ''')
         with open(nowatch_file1, 'w') as f:
             f.write('excluded file\n')
 
+        # Single file watch
+        with open(unused_file, 'w') as f:
+            f.write('Some dummy texts: %s.\n' % random.random())
+        time.sleep(WAIT)
 
-if __name__ == '__main__':
+        # Watch in root of maryjane.yaml
+        with open(dummy_file, 'w') as f:
+            f.write('Some dummy data: %s.\n' % random.random())
+        time.sleep(WAIT)
+
+    def test_exceptions(self):
+        self.assertRaises(MaryjaneSyntaxError, Project, join(self.stuff_dir, 'bad-file.yaml'))
+        self.assertRaises(MaryjaneSyntaxError, Project, join(self.stuff_dir, 'invalid-directive.yaml'))
+        self.assertRaises(CalledProcessError, Project, join(self.stuff_dir, 'subprocess-error.yaml'))
+
+
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()

@@ -26,7 +26,7 @@ from watchdog.events import FileSystemEventHandler
 try:
     # noinspection PyPackageRequirements
     import sass as libsass
-except ImportError:
+except ImportError:  # pragma: no cover
     libsass = None
 
 
@@ -63,22 +63,23 @@ class DictNode(dict):
 
 
 class WatcherEventHandler(FileSystemEventHandler):
-    def __init__(self, project, path, filter_key=None):
-        self.path = path
+    def __init__(self, project, filter_key=None):
         self.project = project
         self.filter_key = filter_key
         super(FileSystemEventHandler, self).__init__()
 
     def on_any_event(self, event):
-        if not isdir(self.path) and event.src_path != self.path:
-            return
+        src_path = event.src_path
+        src_dir = dirname(src_path)
 
         excludes = self.project.watch_excludes.get(self.filter_key)
-        if excludes:
-            src_path = event.src_path
-            src_dir = dirname(src_path)
+        if excludes and (src_path in excludes or src_dir in excludes):
+            return
 
-            if src_path in excludes or src_dir in excludes:
+        includes = self.project.watch_includes.get(self.filter_key)
+        for include in includes:
+            include_dir = abspath(dirname(include))
+            if src_dir == include_dir and src_path not in include:
                 return
 
         self.project.reload(filter_key=self.filter_key)
@@ -92,6 +93,7 @@ class Project(object):
     watcher = None
     watch_handlers = None
     watch_excludes = None
+    watch_includes = None
     filter_match = None
 
     def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open, watcher=None, watcher_type=Observer,
@@ -118,6 +120,9 @@ class Project(object):
         if self.watcher and self.watch_excludes is None:
             self.watch_excludes = {}
 
+        if self.watcher and self.watch_includes is None:
+            self.watch_includes = {}
+
         globals().update(here=abspath(dirname(filename)))
         with opener(filename) as f:
             for l in f:
@@ -125,12 +130,15 @@ class Project(object):
                 self.parse_line(l)
 
     def reload(self, filter_key=None):
-        if self.watcher:
-            if filter_key and filter_key in self.watch_handlers:
-                self.watcher.unschedule(self.watch_handlers[filter_key])
-                self.watch_excludes[filter_key] = set()
-            else:
-                self.watcher.unschedule_all()
+        if self.watcher and filter_key and filter_key in self.watch_handlers:
+            for w in self.watch_handlers[filter_key]:
+                try:
+                    self.watcher.unschedule(w)
+                except KeyError:
+                    continue
+
+            self.watch_excludes[filter_key] = set()
+            self.watch_includes[filter_key] = set()
 
         self.__init__(
             self.filename,
@@ -151,13 +159,18 @@ class Project(object):
 
         filter_key = self.get_filter_key()
 
+        handlers = self.watch_handlers.setdefault(filter_key, [])
+
         path = abspath(path)
-        directory = path if isdir(path) else dirname(path)
-        self.watch_handlers[filter_key] = self.watcher.schedule(
-            WatcherEventHandler(self, path, filter_key=filter_key),
-            directory,
+        if not isdir(path):
+            included_files = self.watch_includes.setdefault(filter_key, set())
+            included_files.add(path)
+
+        handlers.append(self.watcher.schedule(
+            WatcherEventHandler(self, filter_key=filter_key),
+            dirname(path),
             recursive=recursive,
-        )
+        ))
 
     def exclude_watch(self, path):
         if self.watcher is None or not self.is_active:
@@ -184,8 +197,6 @@ class Project(object):
                 return node
 
     def parse_value(self, v):
-        if v is None:
-            return None
 
         if self.multiline_capture is None and v.startswith('$$'):
             # Start Capture
@@ -319,12 +330,11 @@ class Project(object):
     def shell(self, cmd):
         if not self.is_active:
             return
-        try:
-            subprocess.run(cmd, shell=True, check=True)
-        except subprocess.CalledProcessError:
-            pass
 
-    def wait_for_changes(self):
+        # ON error: It will be printed on stderr, so just suppressing the execution is enough.
+        subprocess.run(cmd, shell=True, check=True)
+
+    def wait_for_changes(self):  # pragma: no cover
         self.watcher.start()
         self.watcher.join()
 
@@ -332,7 +342,7 @@ class Project(object):
         if not self.is_active:
             return
 
-        if libsass is None:
+        if libsass is None:  # pragma: no cover
             raise ImportError(
                 'In order, to use `SASS` tags, please install the `libsass` using: `pip install libsass`',
                 name='libsass',
@@ -343,13 +353,13 @@ class Project(object):
             f.write(libsass.compile(filename=src))
 
 
-def quickstart(filename, watch=False):
+def quickstart(filename, watch=False):  # pragma: no cover
     p = Project(filename, watcher_type=Observer if watch else None)
     if watch:
         return p.wait_for_changes()
 
 
-def main():
+def main():  # pragma: no cover
     import argparse
 
     parser = argparse.ArgumentParser(description='File watcher and task manager')
@@ -376,6 +386,6 @@ def main():
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     import sys
     sys.exit(main())
