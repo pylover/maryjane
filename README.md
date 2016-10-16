@@ -2,13 +2,10 @@
 
 [![PyPI](http://img.shields.io/pypi/v/maryjane.svg)]
 (https://pypi.python.org/pypi/maryjane)
-
 [![Requirements Status](https://requires.io/github/pylover/maryjane/requirements.svg?branch=master)]
 (https://requires.io/github/pylover/maryjane/requirements/?branch=master)
-
 [![Build Status](https://travis-ci.org/pylover/maryjane.svg?branch=master)]
 (https://travis-ci.org/pylover/maryjane)
-
 [![Coverage Status](https://coveralls.io/repos/github/pylover/maryjane/badge.svg?branch=master)]
 (https://coveralls.io/github/pylover/maryjane?branch=master)
 
