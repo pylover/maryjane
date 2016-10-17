@@ -19,7 +19,7 @@ class ProjectTestCase(unittest.TestCase):
         self.temp_dir = join(self.stuff_dir, '../temp')
 
     def test_parser(self):
-        project = Project(join(self.stuff_dir, 'maryjane.yaml'), watcher_type=None)
+        project = Project(join(self.stuff_dir, 'maryjane.yml'), watcher_type=None)
         root = project.root
 
         self.assertIsNotNone(root)
@@ -78,7 +78,7 @@ text. ''')
         with open(nowatch_file1, 'w') as f:
             f.write('excluded file\n')
 
-        project = Project(join(self.stuff_dir, 'maryjane.yaml'), watcher_type=Observer)
+        project = Project(join(self.stuff_dir, 'maryjane.yml'), watcher_type=Observer)
         project.watcher.start()
         time.sleep(WAIT)
 
@@ -128,15 +128,15 @@ text. ''')
             f.write('Some dummy texts: %s.\n' % random.random())
         time.sleep(WAIT)
 
-        # Watch in root of maryjane.yaml
+        # Watch in root of maryjane.yml
         with open(dummy_file, 'w') as f:
             f.write('Some dummy data: %s.\n' % random.random())
         time.sleep(WAIT)
 
     def test_exceptions(self):
-        self.assertRaises(MaryjaneSyntaxError, Project, join(self.stuff_dir, 'bad-file.yaml'))
-        self.assertRaises(MaryjaneSyntaxError, Project, join(self.stuff_dir, 'invalid-directive.yaml'))
-        self.assertRaises(CalledProcessError, Project, join(self.stuff_dir, 'subprocess-error.yaml'))
+        self.assertRaises(MaryjaneSyntaxError, Project, join(self.stuff_dir, 'bad-file.yml'))
+        self.assertRaises(MaryjaneSyntaxError, Project, join(self.stuff_dir, 'invalid-directive.yml'))
+        self.assertRaises(CalledProcessError, Project, join(self.stuff_dir, 'subprocess-error.yml'))
 
 
 if __name__ == '__main__':  # pragma: no cover

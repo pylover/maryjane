@@ -363,7 +363,7 @@ def main():  # pragma: no cover
     import argparse
 
     parser = argparse.ArgumentParser(description='File watcher and task manager')
-    parser.add_argument('manifest', nargs='?', default='maryjane.yaml', help='Manifest file, default: "maryjane.yaml"')
+    parser.add_argument('manifest', nargs='?', default='maryjane.yml', help='Manifest file, default: "maryjane.yml"')
     parser.add_argument('-w', '--watch', dest='watch', action='store_true',
                         help='Watch for modifications, and execute tasks if needed.')
     parser.add_argument('-V', '--version', dest='version', action='store_true', help='Show version.')
@@ -378,7 +378,7 @@ def main():  # pragma: no cover
         return quickstart(args.manifest, args.watch)
     except FileNotFoundError:
         print(
-            "No such file: 'maryjane.yaml', You must have a `maryjane.yaml` in the current directory or specify a "
+            "No such file: 'maryjane.yml', You must have a `maryjane.yml` in the current directory or specify a "
             "manifest filename.", file=sys.stderr)
         parser.print_help()
     except KeyboardInterrupt:

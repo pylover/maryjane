@@ -16,7 +16,7 @@ temp: {here}/../temp
 bag:
   count: 0
   avg: .34
-  INCLUDE: {here}/simple.dict.yaml
+  INCLUDE: {here}/simple.dict.yml
 
 title: $$
   A simple multi-line
@@ -71,5 +71,5 @@ styles:
 
 ECHO: Watching for {here}
 WATCH:
-  - {here}/maryjane.yaml
+  - {here}/maryjane.yml
   - {contrib}/dummy-file.txt

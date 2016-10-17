@@ -33,7 +33,7 @@ $ pip install libsass
 ```
  
 
-### maryjane.yaml
+### maryjane.yml
 
 You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`. All `UPPER-CASED` keys are reserved for directives.
 
@@ -59,7 +59,7 @@ temp: {here}/../temp
 bag:
   count: 0
   avg: .34
-  INCLUDE: {here}/simple.dict.yaml
+  INCLUDE: {here}/simple.dict.yml
 
 title: $$
   A simple multi-line
@@ -110,12 +110,12 @@ styles:
 
 
 ECHO: Watching for {here}
-WATCH: {here}/maryjane.yaml
+WATCH: {here}/maryjane.yml
 
 ```
 
     
-#### simple.dict.yaml
+#### simple.dict.yml
 
 ```yaml
 item1:
@@ -262,7 +262,7 @@ scripts:
   ECHO: Watching for javascript files on: {rel(javascripts)}
   WATCH: {javascripts}
 
-WATCH: maryjane.yaml
+WATCH: maryjane.yml
 
 ```
 
