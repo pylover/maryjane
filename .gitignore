@@ -15,3 +15,5 @@ dist
 .idea
 temp
 __pycache__/
+test_stuff/contrib/dummy-file.txt
+test_stuff/contrib/unused-file.txt

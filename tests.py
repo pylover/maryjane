@@ -18,6 +18,29 @@ class ProjectTestCase(unittest.TestCase):
         self.contrib_dir = join(self.stuff_dir, 'contrib')
         self.temp_dir = join(self.stuff_dir, '../temp')
 
+        self.file1 = join(self.static_dir, 'file1.txt')
+        self.misc_file1 = join(self.static_dir, 'misc', 'file1.txt')
+        self.nowatch_file1 = join(self.static_dir, 'misc', 'no-watch-file.txt')
+        self.unused_file = join(self.contrib_dir, 'unused-file.txt')
+        self.dummy_file = join(self.contrib_dir, 'dummy-file.txt')
+        self.outfile = join(self.temp_dir, 'out.txt')
+
+        # Reset files
+        with open(self.file1, 'w') as f:
+            f.write('file1\n')
+
+        with open(self.misc_file1, 'w') as f:
+            f.write('misc file1\n')
+
+        with open(self.nowatch_file1, 'w') as f:
+            f.write('excluded file\n')
+
+        with open(self.dummy_file, 'w') as f:
+            f.write('Some dummy data\n')
+
+        with open(self.outfile, 'w') as f:
+            f.write('Some dummy texts\n')
+
     def test_parser(self):
         project = Project(join(self.stuff_dir, 'maryjane.yml'), watcher_type=None)
         root = project.root
@@ -61,75 +84,59 @@ text. ''')
         self.assertEqual(root['text_files']['file1'], join(self.stuff_dir, 'static', 'file1.txt'))
 
     def test_watch(self):
-        file1 = join(self.static_dir, 'file1.txt')
-        misc_file1 = join(self.static_dir, 'misc', 'file1.txt')
-        nowatch_file1 = join(self.static_dir, 'misc', 'no-watch-file.txt')
-        unused_file = join(self.contrib_dir, 'unused-file.txt')
-        dummy_file = join(self.contrib_dir, 'dummy-file.txt')
-        outfile = join(self.temp_dir, 'out.txt')
-
-        # Reset files
-        with open(file1, 'w') as f:
-            f.write('file1\n')
-
-        with open(misc_file1, 'w') as f:
-            f.write('misc file1\n')
-
-        with open(nowatch_file1, 'w') as f:
-            f.write('excluded file\n')
 
         project = Project(join(self.stuff_dir, 'maryjane.yml'), watcher_type=Observer)
         project.watcher.start()
         time.sleep(WAIT)
 
         # Simple watch
-        with open(file1, 'w') as f:
+        with open(self.file1, 'w') as f:
             f.write('file1 edited.\n')
 
         time.sleep(WAIT)
-        with open(outfile) as f:
+        with open(self.outfile) as f:
             self.assertEqual(f.readline().strip(), 'file1 edited.')
 
-        with open(file1, 'w') as f:
+        with open(self.file1, 'w') as f:
             f.write('file1\n')
 
         time.sleep(WAIT)
-        with open(outfile) as f:
+        with open(self.outfile) as f:
             self.assertEqual(f.readline().strip(), 'file1')
 
         # Recursive watch test
-        with open(misc_file1, 'w') as f:
+        with open(self.misc_file1, 'w') as f:
             f.write('misc file1 edited.\n')
 
         time.sleep(WAIT)
-        with open(outfile) as f:
+        with open(self.outfile) as f:
             self.assertEqual(next(reversed(f.readlines())).strip(), 'misc file1 edited.')
 
-        with open(misc_file1, 'w') as f:
+        with open(self.misc_file1, 'w') as f:
             f.write('misc file1\n')
 
         time.sleep(WAIT)
-        with open(outfile) as f:
+        with open(self.outfile) as f:
             self.assertEqual(next(reversed(f.readlines())).strip(), 'misc file1')
 
         # Exclude
-        with open(nowatch_file1, 'w') as f:
+        with open(self.nowatch_file1, 'w') as f:
             f.write('excluded edited file.\n')
 
         time.sleep(WAIT)
-        with open(outfile) as f:
+        with open(self.outfile) as f:
             self.assertNotIn('excluded edited file.', f.read())
 
-        with open(nowatch_file1, 'w') as f:
+        with open(self.nowatch_file1, 'w') as f:
             f.write('excluded file\n')
 
         # Single file watch
-        with open(unused_file, 'w') as f:
+        with open(self.unused_file, 'w') as f:
             f.write('Some dummy texts: %s.\n' % random.random())
         time.sleep(WAIT)
 
         # Watch in root of maryjane.yml
-        with open(dummy_file, 'w') as f:
+        with open(self.dummy_file, 'w') as f:
             f.write('Some dummy data: %s.\n' % random.random())
         time.sleep(WAIT)
 
