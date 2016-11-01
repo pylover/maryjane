@@ -32,7 +32,6 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
         'License :: Other/Proprietary License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.6',
