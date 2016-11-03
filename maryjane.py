@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover
     libsass = None
 
 
-__version__ = '4.4.0b2'
+__version__ = '4.4.0b3'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -73,14 +73,15 @@ class WatcherEventHandler(FileSystemEventHandler):
         src_path = event.src_path
         src_dir = dirname(src_path)
 
-        excludes = self.project.watch_excludes.get(self.filter_key)
-        if excludes and (src_path in excludes or src_dir in excludes):
-            return
+        for path in self.project.watch_excludes.get(self.filter_key, []):
+            if (isinstance(path, str) and (src_path == path or src_dir == path)) or \
+                    (hasattr(path, 'match') and path.match(src_path)):
+                return
 
-        includes = self.project.watch_includes.get(self.filter_key)
-        for include in includes:
-            include_dir = abspath(dirname(include))
-            if src_dir == include_dir and src_path not in include:
+        for path in self.project.watch_includes.get(self.filter_key, []):
+            include_dir = abspath(dirname(path))
+            if (isinstance(path, str) and (src_dir == include_dir and src_path not in path)) or \
+                    (hasattr(path, 'match') and not path.match(src_path)):
                 return
 
         self.project.reload(filter_key=self.filter_key)
@@ -154,18 +155,26 @@ class Project(object):
     def get_filter_key(self):
         return None if self.level <= 0 else self.stack[-1][0]
 
+    @staticmethod
+    def prepare_path_for_watch(path):
+        regex = None
+        if path.startswith('!'):
+            path = path[1:]
+            regex = re.compile(path)
+        return path, regex
+
     def watch(self, path, recursive=False):
         if self.watcher is None or not self.is_active:
             return
 
+        path, regex = self.prepare_path_for_watch(path)
         filter_key = self.get_filter_key()
-
         handlers = self.watch_handlers.setdefault(filter_key, [])
-
         path = abspath(path)
+
         if not isdir(path):
             included_files = self.watch_includes.setdefault(filter_key, set())
-            included_files.add(path)
+            included_files.add(regex or path)
 
         handlers.append(self.watcher.schedule(
             WatcherEventHandler(self, filter_key=filter_key),
@@ -176,9 +185,10 @@ class Project(object):
     def exclude_watch(self, path):
         if self.watcher is None or not self.is_active:
             return
+        path, regex = self.prepare_path_for_watch(path)
         filter_key = self.get_filter_key()
         excluded_files = self.watch_excludes.setdefault(filter_key, set())
-        excluded_files.add(abspath(path))
+        excluded_files.add(regex or abspath(path))
 
     @property
     def current(self):

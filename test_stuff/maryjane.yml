@@ -77,5 +77,5 @@ ECHO: {ls_result}
 
 ECHO: Watching for {here}
 WATCH:
-  - {here}/maryjane.yml
+  - !{here}/.*\.yml
   - {contrib}/dummy-file.txt

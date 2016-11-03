@@ -37,9 +37,13 @@ $ pip install libsass
 
 You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`. All `UPPER-CASED` keys are reserved for directives.
 
-Currently the `INCLUDE`, `PY`, `SHELL`, `SHELL-INTO`, `ECHO`, `WATCH`, `WATCH-ALL`, `NO-WATCH` and `SASS` are supported. See the example for details:
+Currently the `INCLUDE`, `PY`, `SHELL`, `SHELL-INTO`, `ECHO`, `WATCH`, `WATCH-ALL`, `NO-WATCH` and `SASS` are supported.
+
+Paths used in watch can be started with `!`, to indicate this is a regular-expression.
 
 Multiline expressions are started, and terminated by `$$`. They should preserve indent. 
+
+See the example for details:
 
 ```yaml
 
@@ -113,8 +117,9 @@ styles:
 
 
 ECHO: Watching for {here}
-WATCH: {here}/maryjane.yml
-
+WATCH:
+  - !{here}/.*\.yml
+  - {contrib}/dummy-file.txt
 ```
 
     
@@ -343,6 +348,10 @@ Watching for javascript files on: myproject/javascripts
 
 
 ### Change Log
+
+#### 4.2.0b3
+
+- Using optional regex for watch paths. 
 
 #### 4.2.0b2
 
