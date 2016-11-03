@@ -54,6 +54,9 @@ text_files:
     - cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1
 
+  SHELL-INTO: ls_result ls {outdir}
+  ECHO: {ls_result}
+
   ECHO: Watching for {static}
   WATCH-ALL: {static}
   WATCH: {contrib}/file1.txt
@@ -68,6 +71,9 @@ styles:
   ECHO: Watching for {sass}
   WATCH: {sass}
 
+
+SHELL-INTO: ls_result ls {temp}
+ECHO: {ls_result}
 
 ECHO: Watching for {here}
 WATCH:

@@ -17,6 +17,7 @@ as the name is changed.
 
 """
 import re
+import sys
 from os.path import abspath, dirname, isdir
 import subprocess
 
@@ -30,7 +31,7 @@ except ImportError:  # pragma: no cover
     libsass = None
 
 
-__version__ = '4.4.0b1'
+__version__ = '4.4.0b2'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -281,6 +282,8 @@ class Project(object):
                     self.current.update(self.sub_parser(value).root)
                 elif key == 'SHELL':
                     self.shell(value)
+                elif key == 'SHELL-INTO':
+                    self.shell_into(value)
                 elif key == 'ECHO':
                     self.echo(value)
                 elif key == 'PY':
@@ -333,6 +336,14 @@ class Project(object):
 
         # ON error: It will be printed on stderr, so just suppressing the execution is enough.
         subprocess.run(cmd, shell=True, check=True)
+
+    def shell_into(self, cmd):
+        if not self.is_active:
+            return
+        words = cmd.split(' ')
+        key, cmd = words[0], ' '.join(words[1:])
+        p = subprocess.run(cmd, shell=True, check=True, universal_newlines=True, stdout=subprocess.PIPE)
+        self.current[key] = p.stdout
 
     def wait_for_changes(self):  # pragma: no cover
         self.watcher.start()
@@ -387,5 +398,4 @@ def main():  # pragma: no cover
 
 
 if __name__ == '__main__':  # pragma: no cover
-    import sys
     sys.exit(main())

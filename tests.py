@@ -4,6 +4,7 @@ import random
 from subprocess import CalledProcessError
 from os.path import abspath, join, dirname, exists
 from os import mkdir
+import shutil
 
 from maryjane import Project, Observer, MaryjaneSyntaxError
 
@@ -18,8 +19,9 @@ class ProjectTestCase(unittest.TestCase):
         self.static_dir = join(self.stuff_dir, 'static')
         self.contrib_dir = join(self.stuff_dir, 'contrib')
         self.temp_dir = join(self.stuff_dir, '../temp')
-        if not exists(self.temp_dir):
-            mkdir(self.temp_dir)
+        if exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+        mkdir(self.temp_dir)
 
         self.file1 = join(self.static_dir, 'file1.txt')
         self.misc_file1 = join(self.static_dir, 'misc', 'file1.txt')
@@ -85,6 +87,7 @@ text. ''')
         project.reload()
         root = project.root
         self.assertEqual(root['text_files']['file1'], join(self.stuff_dir, 'static', 'file1.txt'))
+        self.assertRegex(root['text_files']['ls_result'].replace('\n', ''), '(generator\.py|index\.css|out\.txt)')
 
     def test_watch(self):
 

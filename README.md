@@ -37,7 +37,7 @@ $ pip install libsass
 
 You can set any variable anywhere, and access from anywhere: see `file1` and `bag.count`. All `UPPER-CASED` keys are reserved for directives.
 
-Currently the `INCLUDE`, `PY`, `SHELL`, `ECHO`, `WATCH`, `WATCH-ALL`, `NO-WATCH` and `SASS` are supported. See the example for details:
+Currently the `INCLUDE`, `PY`, `SHELL`, `SHELL-INTO`, `ECHO`, `WATCH`, `WATCH-ALL`, `NO-WATCH` and `SASS` are supported. See the example for details:
 
 Multiline expressions are started, and terminated by `$$`. They should preserve indent. 
 
@@ -95,6 +95,9 @@ text_files:
     - touch {outfile}
     - cat {file1} {' '.join(files)} > {outfile}
   PY: bag.count += 1
+  
+  SHELL-INTO: ls_result ls {outdir}
+  ECHO: {ls_result}
 
   ECHO: Watching for {static}
   WATCH-ALL: {static}
@@ -340,6 +343,10 @@ Watching for javascript files on: myproject/javascripts
 
 
 ### Change Log
+
+#### 4.2.0b2
+
+- Adding `SHELL-INTO` directive to store the stdout of a shell process into a local variable.
 
 #### 4.2.0b1
 
