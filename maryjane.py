@@ -340,7 +340,8 @@ class Project(object):
             return
         exec(statement, globals(), self.last_dict())
 
-    def run_subprocess(self, cmd) -> str:
+    @staticmethod
+    def run_subprocess(cmd: str) -> str:
         with subprocess.Popen(
                 cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
             try:
