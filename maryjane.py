@@ -185,7 +185,6 @@ class Project(object):
 
         path, regex = self.prepare_path_for_watch(path)
         filter_key = self.get_watch_filter_key()
-        print('#######', filter_key)
         handlers = self.watch_handlers.setdefault(filter_key, [])
         path = abspath(path)
 
