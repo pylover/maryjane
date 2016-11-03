@@ -107,7 +107,7 @@ class Project(object):
         self.line_cursor = 0
         self.indent_size = 0
         self.current_key = None
-        self.stack = [(str, dict_type())]
+        self.stack = [('ROOT', dict_type())]
         self.multiline_capture = None
         self.filter_key = filter_key
 
@@ -158,15 +158,25 @@ class Project(object):
             filter_key=filter_key
         )
 
-    def get_filter_key(self):
-        return None if self.level <= 0 else self.stack[-1][0]
+    def get_watch_filter_key(self):
+        if self.level <= 0:
+            return None
+
+        key = self.stack[-1][0]
+        if key == 'WATCH':
+            if self.level > 1:
+                return self.stack[-2]
+            else:
+                return None
+
+        return key
 
     @staticmethod
     def prepare_path_for_watch(path):
         regex = None
         if path.startswith('!'):
-            path = path[1:]
-            regex = re.compile(path)
+            regex = re.compile(path[1:])
+            path = globals().get('here')
         return path, regex
 
     def watch(self, path, recursive=False):
@@ -174,7 +184,8 @@ class Project(object):
             return
 
         path, regex = self.prepare_path_for_watch(path)
-        filter_key = self.get_filter_key()
+        filter_key = self.get_watch_filter_key()
+        print('#######', filter_key)
         handlers = self.watch_handlers.setdefault(filter_key, [])
         path = abspath(path)
 
@@ -192,7 +203,7 @@ class Project(object):
         if self.watcher is None or not self.is_active:
             return
         path, regex = self.prepare_path_for_watch(path)
-        filter_key = self.get_filter_key()
+        filter_key = self.get_watch_filter_key()
         excluded_files = self.watch_excludes.setdefault(filter_key, set())
         excluded_files.add(regex or abspath(path))
 
