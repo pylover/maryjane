@@ -341,34 +341,30 @@ class Project(object):
         exec(statement, globals(), self.last_dict())
 
     @staticmethod
-    def run_subprocess(cmd: str) -> str:
-        with subprocess.Popen(
-                cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-            try:
-                stdout, stderr = process.communicate()
-            except:  # pragma: no cover
-                process.kill()
-                process.wait()
-                raise
-            exit_code = process.poll()
-            if exit_code != 0:
-                # print(stderr, file=sys.stderr)
-                raise subprocess.CalledProcessError(exit_code, cmd, output=stdout, stderr=stderr)
-
-            return stdout
+    def popen(*args, **kwargs) -> (str, str):
+        process = subprocess.Popen(*args, shell=True, **kwargs)
+        stdout, stderr = process.communicate()
+        process.wait()
+        exit_code = process.poll()
+        if exit_code:
+            raise subprocess.CalledProcessError(exit_code, args[0], output=stdout, stderr=stderr)
+        return stdout, stderr
 
     def shell(self, cmd):
         if not self.is_active:
             return
 
-        self.run_subprocess(cmd)
+        self.popen(cmd)
 
     def shell_into(self, cmd):
         if not self.is_active:
             return
+
         words = cmd.split(' ')
         key, cmd = words[0], ' '.join(words[1:])
-        self.current[key] = self.run_subprocess(cmd)
+
+        stdout, stderr = self.popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
+        self.current[key] = stdout
 
     def wait_for_changes(self):  # pragma: no cover
         self.watcher.start()
