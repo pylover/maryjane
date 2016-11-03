@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover
     libsass = None
 
 
-__version__ = '4.4.0b4'
+__version__ = '4.4.0b5'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -131,16 +131,22 @@ class Project(object):
                 self.line_cursor += 1
                 self.parse_line(l)
 
+    def _unschedule_watch(self, filter_key):
+        for w in self.watch_handlers[filter_key]:
+            try:
+                self.watcher.unschedule(w)
+            except KeyError:  # pragma: no cover
+                continue
+        self.watch_handlers[filter_key] = []
+        self.watch_excludes[filter_key] = set()
+        self.watch_includes[filter_key] = set()
+
     def reload(self, filter_key=None):
         if self.watcher and filter_key and filter_key in self.watch_handlers:
-            for w in self.watch_handlers[filter_key]:
-                try:
-                    self.watcher.unschedule(w)
-                except KeyError:
-                    continue
-
-            self.watch_excludes[filter_key] = set()
-            self.watch_includes[filter_key] = set()
+            self._unschedule_watch(filter_key)
+        else:
+            for k in self.watch_handlers or {}:
+                self._unschedule_watch(k)
 
         self.__init__(
             self.filename,
@@ -178,7 +184,7 @@ class Project(object):
 
         handlers.append(self.watcher.schedule(
             WatcherEventHandler(self, filter_key=filter_key),
-            dirname(path),
+            path if isdir(path) else dirname(path),
             recursive=recursive,
         ))
 
