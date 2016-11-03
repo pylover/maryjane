@@ -340,20 +340,34 @@ class Project(object):
             return
         exec(statement, globals(), self.last_dict())
 
+    def run_subprocess(self, cmd) -> str:
+        with subprocess.Popen(
+                cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+            try:
+                stdout, stderr = process.communicate()
+            except:  # pragma: no cover
+                process.kill()
+                process.wait()
+                raise
+            exit_code = process.poll()
+            if exit_code != 0:
+                # print(stderr, file=sys.stderr)
+                raise subprocess.CalledProcessError(exit_code, cmd, output=stdout, stderr=stderr)
+
+            return stdout
+
     def shell(self, cmd):
         if not self.is_active:
             return
 
-        # ON error: It will be printed on stderr, so just suppressing the execution is enough.
-        subprocess.run(cmd, shell=True, check=True)
+        self.run_subprocess(cmd)
 
     def shell_into(self, cmd):
         if not self.is_active:
             return
         words = cmd.split(' ')
         key, cmd = words[0], ' '.join(words[1:])
-        p = subprocess.run(cmd, shell=True, check=True, universal_newlines=True, stdout=subprocess.PIPE)
-        self.current[key] = p.stdout
+        self.current[key] = self.run_subprocess(cmd)
 
     def wait_for_changes(self):  # pragma: no cover
         self.watcher.start()
