@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover
     libsass = None
 
 
-__version__ = '4.4.0b5'
+__version__ = '4.4.0'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'

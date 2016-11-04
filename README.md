@@ -349,13 +349,10 @@ Watching for javascript files on: myproject/javascripts
 
 ### Change Log
 
-#### 4.2.0b3
-
-- Using optional regex for watch paths. 
-
-#### 4.2.0b2
+#### 4.4.0
 
 - Adding `SHELL-INTO` directive to store the stdout of a shell process into a local variable.
+- Using optional regex for watch paths.
 
 #### 4.2.0b1
 
