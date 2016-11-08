@@ -360,3 +360,4 @@ Watching for javascript files on: myproject/javascripts
 - Optional SASS Compiler: #6
 - Watcher: #2
 - Internal YAML-like parser: #1
+

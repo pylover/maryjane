@@ -18,8 +18,11 @@ as the name is changed.
 """
 import re
 import sys
-from os.path import abspath, dirname, isdir
+import time
+import threading
 import subprocess
+from datetime import datetime, timedelta
+from os.path import abspath, dirname, isdir
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -70,21 +73,24 @@ class WatcherEventHandler(FileSystemEventHandler):
         super(FileSystemEventHandler, self).__init__()
 
     def on_any_event(self, event):
-        src_path = event.src_path
+        src_path = abspath(event.src_path)
         src_dir = dirname(src_path)
 
         for path in self.project.watch_excludes.get(self.filter_key, []):
             if (isinstance(path, str) and (src_path == path or src_dir == path)) or \
                     (hasattr(path, 'match') and path.match(src_path)):
+                self.project.debug('CHANGED (IGNORED):', src_path)
                 return
 
         for path in self.project.watch_includes.get(self.filter_key, []):
             include_dir = abspath(dirname(path))
             if (isinstance(path, str) and (src_dir == include_dir and src_path not in path)) or \
                     (hasattr(path, 'match') and not path.match(src_path)):
+                self.project.debug('CHANGED (IGNORED):', src_path)
                 return
 
-        self.project.reload(filter_key=self.filter_key)
+        self.project.debug('CHANGED:', src_path)
+        self.project.record_a_change(self.filter_key)
 
 
 class MultiLineValueDetected(Exception):
@@ -99,7 +105,7 @@ class Project(object):
     filter_match = None
 
     def __init__(self, filename, dict_type=DictNode, list_type=list, opener=open, watcher=None, watcher_type=Observer,
-                 filter_key=None):
+                 filter_keys=None, watch_delay=.5, debug=False):
         self.filename = filename
         self.dict_type = dict_type
         self.list_type = list_type
@@ -109,7 +115,12 @@ class Project(object):
         self.current_key = None
         self.stack = [('ROOT', dict_type())]
         self.multiline_capture = None
-        self.filter_key = filter_key
+        self.filter_keys = filter_keys
+        self._change_lock = threading.Lock()
+        self.changes = set()
+        self.dirty = None
+        self.watch_delay = watch_delay
+        self._debug = debug
 
         if watcher:
             self.watcher = watcher
@@ -131,19 +142,24 @@ class Project(object):
                 self.line_cursor += 1
                 self.parse_line(l)
 
-    def _unschedule_watch(self, filter_key):
-        for w in self.watch_handlers[filter_key]:
-            try:
-                self.watcher.unschedule(w)
-            except KeyError:  # pragma: no cover
-                continue
-        self.watch_handlers[filter_key] = []
-        self.watch_excludes[filter_key] = set()
-        self.watch_includes[filter_key] = set()
+    def debug(self, *args):
+        if self._debug:
+            print(*args)
 
-    def reload(self, filter_key=None):
-        if self.watcher and filter_key and filter_key in self.watch_handlers:
-            self._unschedule_watch(filter_key)
+    def _unschedule_watch(self, *filter_keys):
+        for filter_key in filter_keys:
+            for w in self.watch_handlers[filter_key]:
+                try:
+                    self.watcher.unschedule(w)
+                except KeyError:  # pragma: no cover
+                    continue
+            self.watch_handlers[filter_key] = []
+            self.watch_excludes[filter_key] = set()
+            self.watch_includes[filter_key] = set()
+
+    def reload(self, filter_keys: set=None):
+        if self.watcher and filter_keys and filter_keys.intersection(self.watch_handlers.keys()):
+            self._unschedule_watch(*filter_keys)
         else:
             for k in self.watch_handlers or {}:
                 self._unschedule_watch(k)
@@ -155,7 +171,9 @@ class Project(object):
             opener=self.opener,
             watcher_type=None,
             watcher=self.watcher,
-            filter_key=filter_key
+            filter_keys=filter_keys,
+            watch_delay=self.watch_delay,
+            debug=self._debug
         )
 
     def get_watch_filter_key(self):
@@ -163,7 +181,7 @@ class Project(object):
             return None
 
         key = self.stack[-1][0]
-        if key == 'WATCH':
+        if 'WATCH' in key:
             if self.level > 1:
                 return self.stack[-2]
             else:
@@ -177,6 +195,8 @@ class Project(object):
         if path.startswith('!'):
             regex = re.compile(path[1:])
             path = globals().get('here')
+        else:
+            path = abspath(path)
         return path, regex
 
     def watch(self, path, recursive=False):
@@ -186,7 +206,6 @@ class Project(object):
         path, regex = self.prepare_path_for_watch(path)
         filter_key = self.get_watch_filter_key()
         handlers = self.watch_handlers.setdefault(filter_key, [])
-        path = abspath(path)
 
         if not isdir(path):
             included_files = self.watch_includes.setdefault(filter_key, set())
@@ -333,7 +352,7 @@ class Project(object):
             if not self.level:
                 globals().update(self.current)
 
-            if self.filter_key == key:
+            if self.filter_keys and key in self.filter_keys:
                 self.filter_match = self.level + 1
 
             self.current_key = key
@@ -344,7 +363,7 @@ class Project(object):
 
     @property
     def is_active(self):
-        return self.filter_key is None or self.filter_match
+        return not self.filter_keys or self.filter_match
 
     def echo(self, msg):
         if not self.is_active:
@@ -382,9 +401,25 @@ class Project(object):
         stdout, stderr = self.popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
         self.current[key] = stdout
 
+    def record_a_change(self, filter_key):
+        with self._change_lock:
+            if not self.dirty:
+                self.dirty = datetime.now()
+
+            self.changes.add(filter_key)
+
     def wait_for_changes(self):  # pragma: no cover
         self.watcher.start()
-        self.watcher.join()
+        while True:
+            if self.dirty and (datetime.now() - self.dirty > timedelta(seconds=self.watch_delay)):
+                self.debug('RELOADING: ', self.changes)
+                with self._change_lock:
+                    if None in self.changes:
+                        self.reload()
+                    else:
+                        self.reload(self.changes)
+            else:
+                time.sleep(self.watch_delay / 2)
 
     def compile_sass(self, params):
         if not self.is_active:
@@ -401,8 +436,8 @@ class Project(object):
             f.write(libsass.compile(filename=src))
 
 
-def quickstart(filename, watch=False):  # pragma: no cover
-    p = Project(filename, watcher_type=Observer if watch else None)
+def quickstart(filename, watch=False, **kw):  # pragma: no cover
+    p = Project(filename, watcher_type=Observer if watch else None, **kw)
     if watch:
         return p.wait_for_changes()
 
@@ -412,9 +447,14 @@ def main():  # pragma: no cover
 
     parser = argparse.ArgumentParser(description='File watcher and task manager')
     parser.add_argument('manifest', nargs='?', default='maryjane.yml', help='Manifest file, default: "maryjane.yml"')
-    parser.add_argument('-w', '--watch', dest='watch', action='store_true',
+    parser.add_argument('-w', '--watch', action='store_true',
                         help='Watch for modifications, and execute tasks if needed.')
-    parser.add_argument('-V', '--version', dest='version', action='store_true', help='Show version.')
+    parser.add_argument('-d', '--watch-delay', default=.5, type=float,
+                        help='Seconds to wait before reloading the project after change(s) detected, It gives a chance '
+                             'to gather all changes before reload, to prevent multiple reloads in a short mather of '
+                             'time.')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose.')
+    parser.add_argument('-V', '--version', action='store_true', help='Show version.')
 
     args = parser.parse_args()
 
@@ -423,7 +463,7 @@ def main():  # pragma: no cover
         return
 
     try:
-        return quickstart(args.manifest, args.watch)
+        return quickstart(args.manifest, watch=args.watch, watch_delay=args.watch_delay, debug=args.verbose)
     except FileNotFoundError:
         print(
             "No such file: 'maryjane.yml', You must have a `maryjane.yml` in the current directory or specify a "

@@ -1,6 +1,7 @@
 import unittest
 import time
 import random
+import threading
 from subprocess import CalledProcessError
 from os.path import abspath, join, dirname, exists
 from os import mkdir
@@ -91,8 +92,9 @@ text. ''')
 
     def test_watch(self):
 
-        project = Project(join(self.stuff_dir, 'maryjane.yml'), watcher_type=Observer)
-        project.watcher.start()
+        project = Project(join(self.stuff_dir, 'maryjane.yml'), watcher_type=Observer, watch_delay=.000001, debug=True)
+        t = threading.Thread(daemon=True, target=project.wait_for_changes)
+        t.start()
         time.sleep(WAIT)
 
         # Simple watch

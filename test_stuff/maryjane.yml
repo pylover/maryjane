@@ -1,6 +1,6 @@
 
 PY:
-  - from os.path import split, exists, basename
+  - from os.path import split, exists, basename, abspath, join
   - from os import mkdir
 
 title: Test Project
@@ -12,6 +12,7 @@ static: {here}/static
 sass: {here}/sass
 contrib: {here}/contrib
 temp: {here}/../temp
+parent: {abspath(join(here, '..'))}
 
 bag:
   count: 0
