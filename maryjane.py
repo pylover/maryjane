@@ -34,7 +34,7 @@ except ImportError:  # pragma: no cover
     libsass = None
 
 
-__version__ = '4.4.2'
+__version__ = '4.4.3'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -183,7 +183,7 @@ class Project(object):
         key = self.stack[-1][0]
         if 'WATCH' in key:
             if self.level > 1:
-                return self.stack[-2]
+                return self.stack[-2][0]
             else:
                 return None
 
