@@ -19,6 +19,7 @@ as the name is changed.
 import re
 import sys
 import time
+import traceback
 import threading
 import subprocess
 from datetime import datetime, timedelta
@@ -34,7 +35,7 @@ except ImportError:  # pragma: no cover
     libsass = None
 
 
-__version__ = '4.4.3'
+__version__ = '4.4.4'
 
 
 SPACE_PATTERN = '(?P<spaces>\s*)'
@@ -280,11 +281,14 @@ class Project(object):
     def parse_line(self, line):
         key = None
         try:
+            if COMMENT_PATTERN.match(line):
+                return
+
             if self.multiline_capture is not None:
                 line_data = self.indent_size * self.level, self.current_key, \
                             self.parse_value(line[(self.level + 1) * self.indent_size:])
             else:
-                if not line.strip() or COMMENT_PATTERN.match(line):
+                if not line.strip():
                     return
 
                 for pattern in [KEY_VALUE_PATTERN, LIST_ITEM_PATTERN]:
@@ -432,8 +436,11 @@ class Project(object):
             )
         src, dst = params.split('>') if '>' in params else params.split(' ')
         src, dst = src.strip(), dst.strip()
-        with open(dst, 'w') as f:
-            f.write(libsass.compile(filename=src))
+        try:
+            with open(dst, 'w') as f:
+                f.write(libsass.compile(filename=src))
+        except libsass.CompileError:
+            traceback.print_exc()
 
 
 def quickstart(filename, watch=False, **kw):  # pragma: no cover
