@@ -22,7 +22,7 @@ bag:
 title: $$
   A simple multi-line
   text.A simple multi-line
-  # not commented
+  # commented
   text. $$
 
 text_files:
