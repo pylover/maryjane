@@ -1,11 +1,16 @@
+env:
+  global:
+    - COMMIT_AUTHOR_EMAIL: vahid@dobisel.com
+    - COVERALLS_REPO_TOKEN: Yic2wqD0OMQxd09D4H3qrfj7uLEz8pNzL
+
 language: python
-python: nightly
+python: 3.6
 before_install:
   - pip install -U pip setuptools wheel
   - pip install -Ur requirements-dev.txt
 install: pip install -ve .
 script: coverage run --source maryjane $(which nosetests)
-after_success: coveralls --verbose
+after_success: after_success: if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then travis_retry coveralls ; fi
 after_deploy: python3 setup.py bdist_wheel upload
 deploy:
   provider: pypi
