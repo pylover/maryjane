@@ -22,7 +22,7 @@ It's used to evaluate the values between `{}`, see the example:
 ### Install
 
 ```shell
-$ pip install marynaje
+$ pip install maryjane
 ```
 
 If you whant to compile SASS using `libsass` and it's python wrapper:
